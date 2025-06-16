@@ -1,0 +1,199 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda to S3 image upload
+
+Parameters:
+  Environment:
+    Type: String
+
+  Project:
+    Type: String
+    Default: bagalyze
+
+Resources:
+#---Cognito
+  RestrictedUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: RestrictedUserPool
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+      MfaConfiguration: "OFF"
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireUppercase: true
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+        InviteMessageTemplate:
+          EmailMessage: "Hello {username} ! You have been invited to participate in 'bagalyze' dev stage development phase. Your temporary password is {####}"
+          EmailSubject: "Welcome to the system"
+        UnusedAccountValidityDays: 7
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+
+  RestrictedUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: restricted-client
+      UserPoolId: !Ref RestrictedUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+
+  AdminGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      GroupName: Admins
+      UserPoolId: !Ref RestrictedUserPool
+      Description: Admin group for pre-approved users
+
+#---S3
+  S3UploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ "-", [ !Ref AWS::StackName, "uploads", !Ref Environment ] ]
+
+#---Lambda
+  LambdaUploadExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ "-", [ !Ref AWS::StackName, "lambda-upload-role", !Ref Environment ] ]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3UploadPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub '${S3UploadBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+  UploadImageFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Join ["-", [!Ref AWS::StackName, "function-upload-image", !Ref Environment]]
+      Handler: index.handler
+      Role: !GetAtt LambdaUploadExecutionRole.Arn
+      Runtime: python3.11
+      Timeout: 10
+      Code:
+        ZipFile: |
+          import json
+          import base64
+          import boto3
+          import uuid
+          import os
+
+          s3 = boto3.client('s3')
+          bucket = os.environ['BUCKET_NAME']
+
+          def handler(event, context):
+              try:
+                  body = json.loads(event['body'])
+                  image_data = base64.b64decode(body['image_base64'])
+                  filename = f"{uuid.uuid4()}.jpg"
+                  s3.put_object(Bucket=bucket, Key=filename, Body=image_data, ContentType='image/jpeg')
+                  return {
+                      "statusCode": 200,
+                      "body": json.dumps({"message": "Image uploaded", "filename": filename})
+                  }
+              except Exception as e:
+                  return {
+                      "statusCode": 500,
+                      "body": json.dumps({"error": str(e)})
+                  }
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref S3UploadBucket
+
+
+  LambdaApiPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref UploadImageFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/POST/upload'
+
+#--- API Gateway
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub '${AWS::StackName}-api'
+
+  ApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ParentId: !GetAtt ApiGatewayRestApi.RootResourceId
+      PathPart: upload
+
+  ApiAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      Name: CognitoAuthorizer
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      RestApiId: !Ref ApiGatewayRestApi
+      ProviderARNs:
+        - !GetAtt RestrictedUserPool.Arn
+
+  ApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      ResourceId: !Ref ApiGatewayResource
+      RestApiId: !Ref ApiGatewayRestApi
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref ApiAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - Region: !Ref AWS::Region
+            LambdaArn: !GetAtt UploadImageFunction.Arn
+
+  ApiDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: ApiGatewayMethod
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      StageName: !Ref Environment
+
+Outputs:
+  BucketName:
+    Description: S3 bucket for image uploads
+    Value: !Ref S3UploadBucket
+
+  UploadImageFunction:
+    Value: !Ref UploadImageFunction
+
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/upload'
+
+  ApiGatewayRestApi:
+    Value: !Ref ApiGatewayRestApi

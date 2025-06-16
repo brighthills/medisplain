@@ -1,0 +1,11 @@
+.idea
+modules/installer/log/*
+conf/config.php
+error_log
+uploads/
+uploads/*
+pma/
+modules/cron/cron.log
+log/
+meet.txt
+vendor/**
