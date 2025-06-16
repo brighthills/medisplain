@@ -89,5 +89,10 @@ aws cognito-idp list-user-pool-clients \
 }
 ```
 
+### S3
 
+Upload zip to s3 bucket:
+```
+aws s3 --profile bagalyze cp upload-handler.zip s3://bagalyze-buckets-lambda-code/
+```
 
