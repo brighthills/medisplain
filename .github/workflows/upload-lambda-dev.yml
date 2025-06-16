@@ -1,8 +1,8 @@
 name: Upload Lambda to S3 via OIDC
 
 on:
-  push:
-    workflow_dispatch:
+#  push:
+  workflow_dispatch:
 #    paths:
 #      - 'lambda/upload_handler.py'
 
