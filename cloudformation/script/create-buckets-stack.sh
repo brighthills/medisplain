@@ -1,8 +1,8 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-upload-gateway \
-  --template-body file://1-upload-stack.yaml \
-  --profile bh \
+  --stack-name bagalyze-buckets \
+  --template-body file://buckets-stack.yaml \
+  --profile bagalyze \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters ParameterKey=Environment,ParameterValue=dev

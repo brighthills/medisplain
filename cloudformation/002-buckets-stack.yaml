@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: S3 buckets and access
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+
+Resources:
+  #---S3
+  ImageUploadBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ "-", [ !Ref AWS::StackName, "uploads", !Ref Environment ] ]
+
+  LambdaCodeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join ["-", [!Ref AWS::StackName, "lambda-code", !Ref Environment]]
+
+
+  # allows all Lambda functions inside the account to retrieve objects from the LambdaCodeBucket
+  LambdaCodeBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref LambdaCodeBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action:
+              - s3:GetObject
+            Resource: !Sub '${LambdaCodeBucket.Arn}/*'
+
+  LambdaUploadExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ "-", [ !Ref AWS::StackName, "lambda-upload-role", !Ref Environment ] ]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: S3UploadPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub '${ImageUploadBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+
+Outputs:
+  ImageUploadBucket:
+    Value: !Ref ImageUploadBucket
+    Export:
+      Name: ImageUploadBucket
+  LambdaCodeBucket:
+    Value: !Ref LambdaCodeBucket
+    Export:
+      Name: LambdaCodeBucket
+  LambdaUploadExecutionRole:
+    Value: !GetAtt LambdaUploadExecutionRole.Arn
+    Export:
+      Name: LambdaUploadExecutionRole
+
+

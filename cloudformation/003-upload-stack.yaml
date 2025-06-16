@@ -1,13 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Lambda to S3 image upload
+Description: Restricted Cognito User pool, ApiGateway, Lambda upload function
 
 Parameters:
   Environment:
     Type: String
-
   Project:
     Type: String
     Default: bagalyze
+  FunctionUploadName:
+    Type: String
+    Default: upload_handler.zip
 
 Resources:
 #---Cognito
@@ -56,77 +58,21 @@ Resources:
       UserPoolId: !Ref RestrictedUserPool
       Description: Admin group for pre-approved users
 
-#---S3
-  S3UploadBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: !Join [ "-", [ !Ref AWS::StackName, "uploads", !Ref Environment ] ]
-
 #---Lambda
-  LambdaUploadExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      RoleName: !Join [ "-", [ !Ref AWS::StackName, "lambda-upload-role", !Ref Environment ] ]
-      AssumeRolePolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: S3UploadPolicy
-          PolicyDocument:
-            Version: '2012-10-17'
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:PutObject
-                Resource: !Sub '${S3UploadBucket.Arn}/*'
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: '*'
-
   UploadImageFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Join ["-", [!Ref AWS::StackName, "function-upload-image", !Ref Environment]]
-      Handler: index.handler
-      Role: !GetAtt LambdaUploadExecutionRole.Arn
+      Handler: upload_handler.handler
+      Role: !ImportValue LambdaUploadExecutionRole
       Runtime: python3.11
       Timeout: 10
       Code:
-        ZipFile: |
-          import json
-          import base64
-          import boto3
-          import uuid
-          import os
-
-          s3 = boto3.client('s3')
-          bucket = os.environ['BUCKET_NAME']
-
-          def handler(event, context):
-              try:
-                  body = json.loads(event['body'])
-                  image_data = base64.b64decode(body['image_base64'])
-                  filename = f"{uuid.uuid4()}.jpg"
-                  s3.put_object(Bucket=bucket, Key=filename, Body=image_data, ContentType='image/jpeg')
-                  return {
-                      "statusCode": 200,
-                      "body": json.dumps({"message": "Image uploaded", "filename": filename})
-                  }
-              except Exception as e:
-                  return {
-                      "statusCode": 500,
-                      "body": json.dumps({"error": str(e)})
-                  }
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref FunctionUploadName
       Environment:
         Variables:
-          BUCKET_NAME: !Ref S3UploadBucket
+          BUCKET_NAME: !ImportValue ImageUploadBucket
 
 
   LambdaApiPermission:
@@ -184,16 +130,16 @@ Resources:
       StageName: !Ref Environment
 
 Outputs:
-  BucketName:
-    Description: S3 bucket for image uploads
-    Value: !Ref S3UploadBucket
-
   UploadImageFunction:
     Value: !Ref UploadImageFunction
-
+    Export:
+      Name: UploadImageFunction
   ApiEndpoint:
     Description: API Gateway endpoint URL
     Value: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/upload'
-
+    Export:
+      Name: ApiEndpoint
   ApiGatewayRestApi:
     Value: !Ref ApiGatewayRestApi
+    Export:
+      Name: ApiGatewayRestApi
