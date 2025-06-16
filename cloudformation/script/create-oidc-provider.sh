@@ -2,7 +2,7 @@
 
 aws cloudformation create-stack \
   --stack-name bagalyze-oidc-provider \
-  --template-body file://oidc-github-actions.yaml \
+  --template-body file://001-oidc-github-actions.yaml \
   --profile bagalyze \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
