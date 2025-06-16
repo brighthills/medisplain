@@ -9,7 +9,7 @@ Parameters:
     Default: bagalyze
   FunctionUploadName:
     Type: String
-    Default: upload_handler.zip
+    Default: upload-image-handler.zip
 
 Resources:
 #---Cognito
