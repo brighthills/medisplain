@@ -1,0 +1,45 @@
+name: Consumes SQS messages and persist to DynamoDb
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-lambda:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: eu-central-1
+      S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
+      ZIP_FILE_NAME: consume-image-metadata.zip
+      LAMBDA_FUNCTION_NAME: bagalyze-metadata-consumer-function-consume-image-metadata-dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ARN_ROLE_OIDC_PROVIDER }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Zip Lambda code
+        run: |
+          mkdir -p dist
+          zip -j dist/${{ env.ZIP_FILE_NAME }} lambda/consume_image_metadata.py
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp dist/${{ env.ZIP_FILE_NAME }} s3://${{ env.S3_BUCKET_NAME }}/${{ env.ZIP_FILE_NAME }}
+
+      - name: Update Lambda function code
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ env.LAMBDA_FUNCTION_NAME }} \
+            --s3-bucket ${{ env.S3_BUCKET_NAME }} \
+            --s3-key ${{ env.ZIP_FILE_NAME }} \
+            --region ${{ env.AWS_REGION }}
