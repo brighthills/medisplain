@@ -36,13 +36,23 @@ Resources:
             Principal:
               Federated: !If
                 - CreateOIDCProvider
-                - !Ref GithubOidc
+                - !GetAtt GithubOidc.Arn
                 - !Ref OIDCProviderArn
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: !Ref OIDCAudience
               StringLike:
                 token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${RepositoryName}:ref:*
+      Policies:
+        - PolicyName: AllowLambdaUpdateFunctionCode
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:UpdateFunctionCode
+                Resource:
+                  - arn:aws:lambda:eu-central-1:447923164625:function:*
 
   GithubOidc:
     Type: AWS::IAM::OIDCProvider
@@ -52,7 +62,7 @@ Resources:
       ClientIdList:
         - sts.amazonaws.com
       ThumbprintList:
-        - ffffffffffffffffffffffffffffffffffffffff # not used --> https://github.com/marketplace/actions/configure-aws-credentials-action-for-github-actions
+        - 6938fd4d98bab03faadb97b34396831e3780aea1 # not used --> https://github.com/marketplace/actions/configure-aws-credentials-action-for-github-actions
 
 Outputs:
   Role:

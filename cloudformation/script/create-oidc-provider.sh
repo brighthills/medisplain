@@ -8,4 +8,4 @@ aws cloudformation create-stack \
   --parameters \
       ParameterKey=GitHubOrg,ParameterValue=brighthills \
       ParameterKey=RepositoryName,ParameterValue=bagalyze \
-      ParameterKey=OIDCProviderArn,ParameterKey=arn:aws:iam::447923164625:role/bagalyze-oidc-provider-Role-mWwBHd3mtkhN
+      ParameterKey=OIDCProviderArn,ParameterValue=arn:aws:iam::447923164625:oidc-provider/token.actions.githubusercontent.com
