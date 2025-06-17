@@ -17,7 +17,7 @@ Resources:
     Properties:
       FunctionName: !Join [ "-", [ !Ref AWS::StackName, "get-user-metadata", !Ref Environment ] ]
       Handler: get_user_metadata.handler
-      Role: !GetAtt GetUserMetadataRole.Arn
+      Role: !GetAtt LogAndDynamoAccessLambdaRole.Arn
       Runtime: python3.11
       Timeout: 10
       Code:
@@ -27,7 +27,7 @@ Resources:
         Variables:
           TABLE_NAME: !ImportValue UserImageMetadataTable
 
-  GetUserMetadataRole:
+  LogAndDynamoAccessLambdaRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -86,3 +86,13 @@ Resources:
       SourceArn: !Sub
         - 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApiId}/*/GET/user'
         - RestApiId: !ImportValue ApiGatewayRestApi
+
+Outputs:
+  LogAndDynamoAccessLambdaRole:
+    Value: !Ref LogAndDynamoAccessLambdaRole
+    Export:
+      Name: LogAndDynamoAccessLambdaRole
+  LogAndDynamoAccessLambdaRoleArn:
+    Value: !GetAtt LogAndDynamoAccessLambdaRole.Arn
+    Export:
+      Name: LogAndDynamoAccessLambdaRoleArn

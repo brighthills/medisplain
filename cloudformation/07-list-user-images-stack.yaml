@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: GET User images API resource, with Lambda handler
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+  FunctionListUserImagesName:
+    Type: String
+    Default: list-user-images.zip
+
+Resources:
+  ListUserImagesFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Join [ "-", [ !Ref AWS::StackName, "list-user-images", !Ref Environment ] ]
+      Handler: list_user_images.handler
+      Role: !ImportValue LogAndDynamoAccessLambdaRoleArn
+      Runtime: python3.11
+      Timeout: 10
+      Code:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref FunctionListUserImagesName
+      Environment:
+        Variables:
+          TABLE_NAME: !ImportValue UserImageMetadataTable
+
+  ApiGatewayListUserImagesResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !ImportValue ApiGatewayRestApi
+      ParentId: !ImportValue ApiGatewayRestApiRootResourceId
+      PathPart: images
+
+  ApiGatewayListUserImagesMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId: !Ref ApiGatewayListUserImagesResource
+      RestApiId: !ImportValue ApiGatewayRestApi
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue ApiAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - Region: !Ref AWS::Region
+            LambdaArn: !GetAtt ListUserImagesFunction.Arn
+
+  LambdaApiListUserImagesPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt ListUserImagesFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApiId}/*/GET/images
+        - RestApiId: !ImportValue ApiGatewayRestApi
