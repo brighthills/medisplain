@@ -194,7 +194,7 @@ Resources:
   #           GetItem where:
   #             PK = user@example.com
   #             SK = info
-  #       - retrieve one image by user --> pk: user@example.com sk: image#vacation1.jpg data: { filename, userEmail, userId, uploadTimestamp }
+  #       - retrieve one image by user --> pk: user@example.com sk: image#vacation1.jpg data: { filename, userEmail, userId, uploadTimestamp, createdAt }
   #           GetItem where:
   #             PK = user@example.com
   #             SK = image#vacation1.jpg

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-upload-gateway \
-  --template-body file://04-upload-stack.yaml \
+  --stack-name bagalyze-queue \
+  --template-body file://02-queue-stack.yaml \
   --profile bagalyze \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \

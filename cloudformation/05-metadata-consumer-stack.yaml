@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SQS Lambda consumer, to DynamoDb
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+  FunctionConsumeName:
+    Type: String
+    Default: consume-image-metadata.zip
+  DynamoMetadataTableName:
+    Type: String
+    Default: user-image-metadata
+
+Resources:
+  ImageMetadataConsumerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-consumer-role-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaS3DynamoAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoMetadataTableName}"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:HeadObject
+                Resource: !Sub
+                  - "arn:aws:s3:::${BucketName}/*"
+                  - BucketName: !ImportValue ImageUploadBucket
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !ImportValue ImageUploadQueueArn
+
+  ImageMetadataConsumerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-function-consume-image-metadata-${Environment}"
+      Handler: consume_image_metadata.handler
+      Role: !GetAtt ImageMetadataConsumerRole.Arn
+      Runtime: python3.11
+      Timeout: 15
+      Code:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref FunctionConsumeName
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoMetadataTableName
+
+  ImageUploadQueueEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      EventSourceArn: !ImportValue ImageUploadQueueArn
+      FunctionName: !Ref ImageMetadataConsumerFunction
+      Enabled: true

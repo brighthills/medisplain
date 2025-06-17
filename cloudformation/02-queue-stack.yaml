@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SQS stack
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+
+Resources:
+  ImageUploadQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ "-", [ !Ref AWS::StackName, "image-upload-queue", !Ref Environment ] ]
+      VisibilityTimeout: 30
+
+Outputs:
+  ImageUploadQueueRef:
+    Value: !Ref ImageUploadQueue
+    Export:
+      Name: ImageUploadQueueRef
+
+  ImageUploadQueueArn:
+    Value: !GetAtt ImageUploadQueue.Arn
+    Export:
+      Name: ImageUploadQueueArn

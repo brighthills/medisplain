@@ -7,19 +7,26 @@ Parameters:
   Project:
     Type: String
     Default: bagalyze
+  BucketNameUpload:
+    Type: String
+    Default: uploads
 
 Resources:
   #---S3
   ImageUploadBucket:
     Type: AWS::S3::Bucket
+    DependsOn: ImageUploadQueuePolicy
     Properties:
-      BucketName: !Join [ "-", [ !Ref AWS::StackName, "uploads", !Ref Environment ] ]
+      BucketName: !Join [ "-", [ !Ref AWS::StackName, !Ref BucketNameUpload, !Ref Environment ] ]
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: s3:ObjectCreated:Put
+            Queue: !ImportValue ImageUploadQueueArn
 
   LambdaCodeBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Join ["-", [!Ref AWS::StackName, "lambda-code", !Ref Environment]]
-
 
   # allows all Lambda functions inside the account to retrieve objects from the LambdaCodeBucket
   LambdaCodeBucketPolicy:
@@ -62,6 +69,24 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource: '*'
+
+
+  ImageUploadQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !ImportValue ImageUploadQueueRef
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: s3.amazonaws.com
+            Action: "sqs:SendMessage"
+            Resource: !ImportValue ImageUploadQueueArn
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Join [ "", [ "arn:aws:s3:::", !Ref AWS::StackName, "-", !Ref BucketNameUpload, "-", !Ref Environment ] ]
 
 Outputs:
   ImageUploadBucket:
