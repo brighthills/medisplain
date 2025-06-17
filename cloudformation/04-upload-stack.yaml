@@ -237,3 +237,19 @@ Outputs:
     Value: !Ref ApiGatewayRestApi
     Export:
       Name: ApiGatewayRestApi
+  ApiGatewayRestApiRootResourceId:
+    Value: !GetAtt ApiGatewayRestApi.RootResourceId
+    Export:
+      Name: ApiGatewayRestApiRootResourceId
+  UserImageMetadataTable:
+    Value: !Ref UserImageMetadataTable
+    Export:
+      Name: UserImageMetadataTable
+  ApiAuthorizer:
+    Value: !Ref ApiAuthorizer
+    Export:
+      Name: ApiAuthorizer
+  UserImageMetadataTableArn:
+    Value: !GetAtt UserImageMetadataTable.Arn
+    Export:
+      Name: UserImageMetadataTableArn

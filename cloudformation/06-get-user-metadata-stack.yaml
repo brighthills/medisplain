@@ -1,0 +1,88 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: GET User metadata API resource, with Lambda handler
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+  FunctionMetadataUserGet:
+    Type: String
+    Default: get-user-metadata.zip
+
+Resources:
+  GetUserMetadataFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Join [ "-", [ !Ref AWS::StackName, "get-user-metadata", !Ref Environment ] ]
+      Handler: get_user_metadata.handler
+      Role: !GetAtt GetUserMetadataRole.Arn
+      Runtime: python3.11
+      Timeout: 10
+      Code:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref FunctionMetadataUserGet
+      Environment:
+        Variables:
+          TABLE_NAME: !ImportValue UserImageMetadataTable
+
+  GetUserMetadataRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowDynamoDBReadAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                Resource: !ImportValue UserImageMetadataTableArn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  ApiGatewayUserResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !ImportValue ApiGatewayRestApi
+      ParentId: !ImportValue ApiGatewayRestApiRootResourceId
+      PathPart: user
+
+  ApiGatewayGetUserMetadataMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId: !Ref ApiGatewayUserResource
+      RestApiId: !ImportValue ApiGatewayRestApi
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue ApiAuthorizer
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - Region: !Ref AWS::Region
+            LambdaArn: !GetAtt GetUserMetadataFunction.Arn
+
+  LambdaApiGetUserPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt GetUserMetadataFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApiId}/*/GET/user'
+        - RestApiId: !ImportValue ApiGatewayRestApi
