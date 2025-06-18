@@ -1,6 +1,6 @@
 #!/bin/bash
 
-aws cloudformation update-stack \
+aws cloudformation create-stack \
   --stack-name bagalyze-metadata-consumer \
   --template-body file://05-metadata-consumer-stack.yaml \
   --profile bagalyze \
