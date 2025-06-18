@@ -165,6 +165,36 @@ Resources:
           TABLE_NAME: !Ref UserImageMetadataTable
 
 #--- API Gateway
+  ApiGatewayCloudWatchLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: apigateway-cloudwatch-logs-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApiGatewayPushToCloudWatch
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  ApiGatewayAccount:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn: !GetAtt ApiGatewayCloudWatchLogsRole.Arn
+
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -179,6 +209,7 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ProviderARNs:
         - !GetAtt RestrictedUserPool.Arn
+      AuthorizerResultTtlInSeconds: 300
 
   ApiGatewayResource:
     Type: AWS::ApiGateway::Resource
@@ -207,6 +238,7 @@ Resources:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Credentials: true
 
   ApiGatewayOptionsMethod:
     Type: AWS::ApiGateway::Method
@@ -221,8 +253,9 @@ Resources:
           - StatusCode: 200
             ResponseParameters:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
               method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
             ResponseTemplates:
               application/json: ""
         RequestTemplates:
@@ -233,13 +266,56 @@ Resources:
             method.response.header.Access-Control-Allow-Headers: true
             method.response.header.Access-Control-Allow-Origin: true
             method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Credentials: true
+
+  ApiGatewayGatewayResponse:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResponseType: UNAUTHORIZED
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
+        gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+      StatusCode: '401'
+      ResponseTemplates:
+        application/json: '{"message": "Unauthorized"}'
+
+  ApiGatewayGatewayResponseAccessDenied:
+    Type: AWS::ApiGateway::GatewayResponse
+    Properties:
+      RestApiId: !Ref ApiGatewayRestApi
+      ResponseType: ACCESS_DENIED
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
+        gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+      StatusCode: '403'
+      ResponseTemplates:
+        application/json: '{"message": "Access denied"}'
 
   ApiDeployment:
     Type: AWS::ApiGateway::Deployment
-    DependsOn: ApiGatewayMethod
+    DependsOn:
+      - ApiGatewayMethod
+      - ApiGatewayAccount
     Properties:
       RestApiId: !Ref ApiGatewayRestApi
       StageName: !Ref Environment
+      StageDescription:
+        MethodSettings:
+          - ResourcePath: "/*"
+            HttpMethod: "*"
+            LoggingLevel: INFO
+            DataTraceEnabled: true
+            MetricsEnabled: true
+        AccessLogSetting:
+          DestinationArn: !Sub arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/apigateway/${AWS::StackName}-access-logs
+          Format: '{ "requestId":"$context.requestId", "ip":"$context.identity.sourceIp", "caller":"$context.identity.caller", "user":"$context.identity.user", "requestTime":"$context.requestTime", "httpMethod":"$context.httpMethod", "resourcePath":"$context.resourcePath", "status":"$context.status", "protocol":"$context.protocol", "responseLength":"$context.responseLength" }'
+
+  ApiGatewayAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-access-logs
+      RetentionInDays: 7
 
   #---DynamoDb
   #    use cases:
@@ -283,7 +359,7 @@ Outputs:
       Name: UploadImageFunction
   ApiEndpoint:
     Description: API Gateway endpoint URL
-    Value: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/upload'
+    Value: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/upload'
     Export:
       Name: ApiEndpoint
   ApiGatewayRestApi:
