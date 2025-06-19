@@ -165,6 +165,7 @@ Resources:
           TABLE_NAME: !Ref UserImageMetadataTable
 
 #--- API Gateway
+  #enables API Gateway logs to be tracked in CloudWatch
   ApiGatewayCloudWatchLogsRole:
     Type: AWS::IAM::Role
     Properties:
