@@ -15,7 +15,7 @@ Resources:
   ListUserFilesFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Join [ "-", [ !Ref AWS::StackName, "list-user-files", !Ref Environment ] ]
+      FunctionName: !Join [ "-", [ !Ref AWS::StackName, "function", !Ref Environment ] ]
       Handler: list_user_files.handler
       Role: !ImportValue LogAndDynamoAccessLambdaRoleArn
       Runtime: python3.11

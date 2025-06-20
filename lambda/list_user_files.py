@@ -18,7 +18,7 @@ def handler(event, context):
             KeyConditionExpression='PK = :pk and begins_with(SK, :prefix)',
             ExpressionAttributeValues={
                 ':pk': {'S': email},
-                ':prefix': {'S': 'image#'}
+                ':prefix': {'S': 'file#'}
             }
         )
 
@@ -30,6 +30,7 @@ def handler(event, context):
                 "userId": item.get("userId", {}).get("S"),
                 "uploadTimestamp": item.get("uploadTimestamp", {}).get("S"),
                 "createdAt": item.get("createdAt", {}).get("S"),
+                "status": item.get("status", {}).get("S"),
             })
 
         return {

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-list-images \
-  --template-body file://07-list-user-images-stack.yaml \
+  --stack-name bagalyze-list-user-files \
+  --template-body file://07-list-user-files-stack.yaml \
   --profile bagalyze \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \

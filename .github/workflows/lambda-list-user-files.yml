@@ -15,7 +15,7 @@ jobs:
       AWS_REGION: eu-central-1
       S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
       ZIP_FILE_NAME: list-user-files.zip
-      LAMBDA_FUNCTION_NAME: bagalyze-list-files-list-user-files-dev
+      LAMBDA_FUNCTION_NAME: bagalyze-list-user-files-function-dev
 
     steps:
       - name: Checkout code
