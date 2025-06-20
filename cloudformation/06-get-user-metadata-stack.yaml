@@ -25,7 +25,7 @@ Resources:
         S3Key: !Ref FunctionMetadataUserGet
       Environment:
         Variables:
-          TABLE_NAME: !ImportValue UserImageMetadataTable
+          TABLE_NAME: !ImportValue UserFileMetadataTable
 
   LogAndDynamoAccessLambdaRole:
     Type: AWS::IAM::Role
@@ -46,7 +46,7 @@ Resources:
                 Action:
                   - dynamodb:GetItem
                   - dynamodb:Query
-                Resource: !ImportValue UserImageMetadataTableArn
+                Resource: !ImportValue UserFileMetadataTableArn
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

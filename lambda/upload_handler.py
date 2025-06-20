@@ -8,31 +8,41 @@ from datetime import datetime
 s3 = boto3.client('s3')
 bucket = os.environ['BUCKET_NAME']
 
+# Detect content type and extension from base64 string prefix
+def get_file_type_and_extension(base64_data):
+    if base64_data.startswith('/9j/'):
+        return 'image/jpeg', '.jpg'
+    elif base64_data.startswith('iVBOR'):
+        return 'image/png', '.png'
+    elif base64_data.startswith('JVBER'):
+        return 'application/pdf', '.pdf'
+    else:
+        raise ValueError("Unsupported file type")
+
 def handler(event, context):
     try:
-        # Decode base64-encoded image from JSON body
         body = json.loads(event['body'])
-        image_data = base64.b64decode(body['image_base64'])
-        filename = f"{uuid.uuid4()}.jpg"
+        base64_data = body['file_base64']
+        file_binary = base64.b64decode(base64_data)
 
-        # Get Cognito user identity from authorizer claims
+        content_type, extension = get_file_type_and_extension(base64_data[:20])
+        filename = f"{uuid.uuid4()}{extension}"
+
         claims = event.get('requestContext', {}).get('authorizer', {}).get('claims', {})
         uploader_email = claims.get('email', 'unknown')
         uploader_id = claims.get('sub', 'unknown')
 
-        # Add custom metadata
         metadata = {
             'user-email': uploader_email,
             'user-id': uploader_id,
             'upload-timestamp': datetime.utcnow().isoformat()
         }
 
-        # Upload image to S3 with metadata
         s3.put_object(
             Bucket=bucket,
             Key=filename,
-            Body=image_data,
-            ContentType='image/jpeg',
+            Body=file_binary,
+            ContentType=content_type,
             Metadata=metadata
         )
 
@@ -45,7 +55,7 @@ def handler(event, context):
                 "Access-Control-Allow-Methods": "OPTIONS,POST"
             },
             "body": json.dumps({
-                "message": "Image uploaded",
+                "message": "File uploaded",
                 "filename": filename,
                 "metadata": metadata
             })
@@ -59,4 +69,3 @@ def handler(event, context):
                 "Access-Control-Allow-Credentials": True
             },
             "body": json.dumps({"error": str(e)})
-        }

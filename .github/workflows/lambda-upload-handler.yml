@@ -14,8 +14,8 @@ jobs:
     env:
       AWS_REGION: eu-central-1
       S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
-      ZIP_FILE_NAME: upload-image-handler.zip
-      LAMBDA_FUNCTION_NAME: bagalyze-upload-gateway-function-upload-image-dev
+      ZIP_FILE_NAME: upload-file-handler.zip
+      LAMBDA_FUNCTION_NAME: bagalyze-upload-gateway-function-upload-file-dev
 
     steps:
       - name: Checkout code

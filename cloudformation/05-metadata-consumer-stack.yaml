@@ -9,13 +9,13 @@ Parameters:
     Default: bagalyze
   FunctionConsumeName:
     Type: String
-    Default: consume-image-metadata.zip
+    Default: consume-file-metadata.zip
   DynamoMetadataTableName:
     Type: String
-    Default: user-image-metadata
+    Default: user-file-metadata
 
 Resources:
-  ImageMetadataConsumerRole:
+  FileMetadataConsumerRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "${AWS::StackName}-consumer-role-${Environment}"
@@ -41,7 +41,7 @@ Resources:
                   - s3:HeadObject
                 Resource: !Sub
                   - "arn:aws:s3:::${BucketName}/*"
-                  - BucketName: !ImportValue ImageUploadBucket
+                  - BucketName: !ImportValue FileUploadBucket
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -53,14 +53,14 @@ Resources:
                   - sqs:ReceiveMessage
                   - sqs:DeleteMessage
                   - sqs:GetQueueAttributes
-                Resource: !ImportValue ImageUploadQueueArn
+                Resource: !ImportValue FileUploadQueueArn
 
-  ImageMetadataConsumerFunction:
+  FileMetadataConsumerFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-function-consume-image-metadata-${Environment}"
-      Handler: consume_image_metadata.handler
-      Role: !GetAtt ImageMetadataConsumerRole.Arn
+      FunctionName: !Sub "${AWS::StackName}-function-consume-file-metadata-${Environment}"
+      Handler: consume_file_metadata.handler
+      Role: !GetAtt FileMetadataConsumerRole.Arn
       Runtime: python3.11
       Timeout: 15
       Code:
@@ -70,10 +70,10 @@ Resources:
         Variables:
           TABLE_NAME: !Ref DynamoMetadataTableName
 
-  ImageUploadQueueEventSourceMapping:
+  FileUploadQueueEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
       BatchSize: 1
-      EventSourceArn: !ImportValue ImageUploadQueueArn
-      FunctionName: !Ref ImageMetadataConsumerFunction
+      EventSourceArn: !ImportValue FileUploadQueueArn
+      FunctionName: !Ref FileMetadataConsumerFunction
       Enabled: true

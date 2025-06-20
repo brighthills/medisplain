@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: GET User images API resource, with Lambda handler
+Description: GET User file metadata API resource, with Lambda handler
 
 Parameters:
   Environment:
@@ -7,59 +7,61 @@ Parameters:
   Project:
     Type: String
     Default: bagalyze
-  FunctionListUserImagesName:
+  FunctionGetUserFileMetadataName:
     Type: String
-    Default: list-user-images.zip
+    Default: get-user-file-metadata.zip
 
 Resources:
-  ListUserImagesFunction:
+  GetUserFileMetadataFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Join [ "-", [ !Ref AWS::StackName, "list-user-images", !Ref Environment ] ]
-      Handler: list_user_images.handler
+      FunctionName: !Sub "${Project}-get-user-file-metadata-${Environment}"
+      Handler: get_user_file_metadata.handler
       Role: !ImportValue LogAndDynamoAccessLambdaRoleArn
       Runtime: python3.11
       Timeout: 10
       Code:
         S3Bucket: !ImportValue LambdaCodeBucket
-        S3Key: !Ref FunctionListUserImagesName
+        S3Key: !Ref FunctionGetUserFileMetadataName
       Environment:
         Variables:
-          TABLE_NAME: !ImportValue UserImageMetadataTable
+          TABLE_NAME: !ImportValue UserFileMetadataTable
 
-  ApiGatewayListUserImagesResource:
+  ApiGatewayGetUserFileMetadataResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       RestApiId: !ImportValue ApiGatewayRestApi
       ParentId: !ImportValue ApiGatewayRestApiRootResourceId
-      PathPart: images
+      PathPart: file-meta
 
-  ApiGatewayListUserImagesMethod:
+  ApiGatewayGetUserFileMetadataMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       HttpMethod: GET
-      ResourceId: !Ref ApiGatewayListUserImagesResource
+      ResourceId: !Ref ApiGatewayGetUserFileMetadataResource
       RestApiId: !ImportValue ApiGatewayRestApi
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !ImportValue ApiAuthorizer
+      RequestParameters:
+        method.request.querystring.filename: true
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
         Uri: !Sub
           - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
           - Region: !Ref AWS::Region
-            LambdaArn: !GetAtt ListUserImagesFunction.Arn
+            LambdaArn: !GetAtt GetUserFileMetadataFunction.Arn
       MethodResponses:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Origin: true
             method.response.header.Access-Control-Allow-Credentials: true
 
-  ApiGatewayListUserImagesOptionsMethod:
+  ApiGatewayGetUserFileMetadataMethodOptionsMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       HttpMethod: OPTIONS
-      ResourceId: !Ref ApiGatewayListUserImagesResource
+      ResourceId: !Ref ApiGatewayGetUserFileMetadataResource
       RestApiId: !ImportValue ApiGatewayRestApi
       AuthorizationType: NONE
       Integration:
@@ -83,12 +85,12 @@ Resources:
             method.response.header.Access-Control-Allow-Methods: true
             method.response.header.Access-Control-Allow-Credentials: true
 
-  LambdaApiListUserImagesPermission:
+  LambdaApiGetUserFileMetadataPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !GetAtt ListUserImagesFunction.Arn
+      FunctionName: !GetAtt GetUserFileMetadataFunction.Arn
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub
-        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApiId}/*/GET/images
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApiId}/*/GET/file-meta
         - RestApiId: !ImportValue ApiGatewayRestApi

@@ -9,10 +9,13 @@ Parameters:
     Default: bagalyze
   FunctionUploadName:
     Type: String
-    Default: upload-image-handler.zip
+    Default: upload-file-handler.zip
   FunctionPersistUserName:
     Type: String
     Default: persist-user-info.zip
+  DynamoMetadataTableName:
+    Type: String
+    Default: user-file-metadata
 
 Resources:
 #---Cognito
@@ -89,10 +92,10 @@ Resources:
       Description: Admin group for pre-approved users
 
 #---Lambda
-  UploadImageFunction:
+  UploadFileFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Join ["-", [!Ref AWS::StackName, "function-upload-image", !Ref Environment]]
+      FunctionName: !Join ["-", [!Ref AWS::StackName, "function-upload-file", !Ref Environment]]
       Handler: upload_handler.handler
       Role: !ImportValue LambdaUploadExecutionRole
       Runtime: python3.11
@@ -102,12 +105,12 @@ Resources:
         S3Key: !Ref FunctionUploadName
       Environment:
         Variables:
-          BUCKET_NAME: !ImportValue ImageUploadBucket
+          BUCKET_NAME: !ImportValue FileUploadBucket
 
   LambdaApiPermission:
     Type: AWS::Lambda::Permission
     Properties:
-      FunctionName: !Ref UploadImageFunction
+      FunctionName: !Ref UploadFileFunction
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/POST/upload'
@@ -141,7 +144,7 @@ Resources:
                   - dynamodb:PutItem
                   - dynamodb:UpdateItem
                   - dynamodb:DeleteItem
-                Resource: !GetAtt UserImageMetadataTable.Arn
+                Resource: !GetAtt UserFileMetadataTable.Arn
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -162,7 +165,7 @@ Resources:
         S3Key: !Ref FunctionPersistUserName
       Environment:
         Variables:
-          TABLE_NAME: !Ref UserImageMetadataTable
+          TABLE_NAME: !Ref UserFileMetadataTable
 
 #--- API Gateway
   #enables API Gateway logs to be tracked in CloudWatch
@@ -234,7 +237,7 @@ Resources:
         Uri: !Sub
           - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
           - Region: !Ref AWS::Region
-            LambdaArn: !GetAtt UploadImageFunction.Arn
+            LambdaArn: !GetAtt UploadFileFunction.Arn
       MethodResponses:
         - StatusCode: 200
           ResponseParameters:
@@ -324,23 +327,23 @@ Resources:
   #           GetItem where:
   #             PK = user@example.com
   #             SK = info
-  #       - retrieve one image by user --> pk: user@example.com sk: image#vacation1.jpg data: { filename, userEmail, userId, uploadTimestamp, createdAt }
+  #       - retrieve one file by user --> pk: user@example.com sk: file#image#vacation1.jpg data: { filename, userEmail, userId, uploadTimestamp, createdAt }
   #           GetItem where:
   #             PK = user@example.com
-  #             SK = image#vacation1.jpg
-  #       - retrieve many images by user
+  #             SK = file#image#vacation1.jpg
+  #       - retrieve many files by user
   #           Query where:
   #             PK = user@example.com
-  #             SK begins_with image#
+  #             SK begins_with file#image#
   #    pros for design:
-  #      - scales with user and image volume
+  #      - scales with user and file volume
   #      - simple, consistent pattern
   #      - one table for everything = cost-effective, easy to maintain
-  #      - SK values allow type separation (info, image#..., etc.)
-  UserImageMetadataTable:
+  #      - SK values allow type separation (info, file#image#..., etc.)
+  UserFileMetadataTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: user-image-metadata
+      TableName: !Ref DynamoMetadataTableName
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: PK
@@ -354,10 +357,10 @@ Resources:
           KeyType: RANGE
 
 Outputs:
-  UploadImageFunction:
-    Value: !Ref UploadImageFunction
+  UploadFileFunction:
+    Value: !Ref UploadFileFunction
     Export:
-      Name: UploadImageFunction
+      Name: UploadFileFunction
   ApiEndpoint:
     Description: API Gateway endpoint URL
     Value: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/upload'
@@ -371,15 +374,15 @@ Outputs:
     Value: !GetAtt ApiGatewayRestApi.RootResourceId
     Export:
       Name: ApiGatewayRestApiRootResourceId
-  UserImageMetadataTable:
-    Value: !Ref UserImageMetadataTable
+  UserFileMetadataTable:
+    Value: !Ref UserFileMetadataTable
     Export:
-      Name: UserImageMetadataTable
+      Name: UserFileMetadataTable
   ApiAuthorizer:
     Value: !Ref ApiAuthorizer
     Export:
       Name: ApiAuthorizer
-  UserImageMetadataTableArn:
-    Value: !GetAtt UserImageMetadataTable.Arn
+  UserFileMetadataTableArn:
+    Value: !GetAtt UserFileMetadataTable.Arn
     Export:
-      Name: UserImageMetadataTableArn
+      Name: UserFileMetadataTableArn

@@ -9,19 +9,19 @@ Parameters:
     Default: bagalyze
 
 Resources:
-  ImageUploadQueue:
+  FileUploadQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join [ "-", [ !Ref AWS::StackName, "image-upload-queue", !Ref Environment ] ]
+      QueueName: !Join [ "-", [ !Ref AWS::StackName, "file-upload", !Ref Environment ] ]
       VisibilityTimeout: 30
 
 Outputs:
-  ImageUploadQueueRef:
-    Value: !Ref ImageUploadQueue
+  FileUploadQueueRef:
+    Value: !Ref FileUploadQueue
     Export:
-      Name: ImageUploadQueueRef
+      Name: FileUploadQueueRef
 
-  ImageUploadQueueArn:
-    Value: !GetAtt ImageUploadQueue.Arn
+  FileUploadQueueArn:
+    Value: !GetAtt FileUploadQueue.Arn
     Export:
-      Name: ImageUploadQueueArn
+      Name: FileUploadQueueArn

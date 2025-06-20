@@ -7,7 +7,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 dynamodb = boto3.client('dynamodb')
-TABLE_NAME = os.environ.get('TABLE_NAME', 'user-image-metadata')
+TABLE_NAME = os.environ.get('TABLE_NAME', 'user-file-metadata')
 
 def handler(event, context):
     try:

@@ -13,15 +13,15 @@ Parameters:
 
 Resources:
   #---S3
-  ImageUploadBucket:
+  FileUploadBucket:
     Type: AWS::S3::Bucket
-    DependsOn: ImageUploadQueuePolicy
+    DependsOn: FileUploadQueuePolicy
     Properties:
       BucketName: !Join [ "-", [ !Ref AWS::StackName, !Ref BucketNameUpload, !Ref Environment ] ]
       NotificationConfiguration:
         QueueConfigurations:
           - Event: s3:ObjectCreated:Put
-            Queue: !ImportValue ImageUploadQueueArn
+            Queue: !ImportValue FileUploadQueueArn
 
   LambdaCodeBucket:
     Type: AWS::S3::Bucket
@@ -62,7 +62,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:PutObject
-                Resource: !Sub '${ImageUploadBucket.Arn}/*'
+                Resource: !Sub '${FileUploadBucket.Arn}/*'
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -71,11 +71,11 @@ Resources:
                 Resource: '*'
 
 
-  ImageUploadQueuePolicy:
+  FileUploadQueuePolicy:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
-        - !ImportValue ImageUploadQueueRef
+        - !ImportValue FileUploadQueueRef
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -83,16 +83,16 @@ Resources:
             Principal:
               Service: s3.amazonaws.com
             Action: "sqs:SendMessage"
-            Resource: !ImportValue ImageUploadQueueArn
+            Resource: !ImportValue FileUploadQueueArn
             Condition:
               ArnLike:
                 aws:SourceArn: !Join [ "", [ "arn:aws:s3:::", !Ref AWS::StackName, "-", !Ref BucketNameUpload, "-", !Ref Environment ] ]
 
 Outputs:
-  ImageUploadBucket:
-    Value: !Ref ImageUploadBucket
+  FileUploadBucket:
+    Value: !Ref FileUploadBucket
     Export:
-      Name: ImageUploadBucket
+      Name: FileUploadBucket
   LambdaCodeBucket:
     Value: !Ref LambdaCodeBucket
     Export:

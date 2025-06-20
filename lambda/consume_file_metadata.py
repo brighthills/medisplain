@@ -9,7 +9,7 @@ logger.setLevel(logging.INFO)
 
 dynamodb = boto3.client('dynamodb')
 s3 = boto3.client('s3')
-TABLE_NAME = os.environ.get('TABLE_NAME', 'user-image-metadata')
+TABLE_NAME = os.environ.get('TABLE_NAME', 'user-file-metadata')
 
 def handler(event, context):
     for record in event["Records"]:
