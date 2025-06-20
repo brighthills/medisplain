@@ -1,7 +1,7 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-metadata-consumer \
+  --stack-name bagalyze-file-metadata-consumer \
   --template-body file://05-metadata-consumer-stack.yaml \
   --profile bagalyze \
   --capabilities CAPABILITY_NAMED_IAM \

@@ -10,13 +10,14 @@ logger.setLevel(logging.INFO)
 dynamodb = boto3.client('dynamodb')
 s3 = boto3.client('s3')
 TABLE_NAME = os.environ.get('TABLE_NAME', 'user-file-metadata')
+STATUS = 'in-progress'
 
 def handler(event, context):
     for record in event["Records"]:
         try:
             body = json.loads(record["body"])
 
-            # Handle only real S3 events
+            # Skip S3 test events
             if body.get("Event") == "s3:TestEvent":
                 logger.info("Skipping S3 test event")
                 continue
@@ -40,19 +41,29 @@ def handler(event, context):
                 upload_timestamp = metadata.get("upload-timestamp")
                 createdAt = datetime.now(timezone.utc).isoformat()
 
+                # Determine file type based on extension
+                extension = key.lower().split('.')[-1]
+                if extension in ["png", "jpeg", "jpg"]:
+                    sk_prefix = "file#image#"
+                elif extension == "pdf":
+                    sk_prefix = "file#document#"
+                else:
+                    logger.warning(f"Unsupported file type for {key}, skipping")
+                    continue
+
                 item = {
                     'PK': {'S': user_email},
-                    'SK': {'S': f'image#{key}'},
+                    'SK': {'S': f'{sk_prefix}{key}'},
                     'filename': {'S': key},
                     'userEmail': {'S': user_email},
                     'userId': {'S': user_id},
                     'uploadTimestamp': {'S': upload_timestamp},
-                    'createdAt': {'S': createdAt}
+                    'createdAt': {'S': createdAt},
+                    'status': {'S': STATUS}
                 }
 
-                # Put item to DynamoDB
+                # Store metadata in DynamoDB
                 dynamodb.put_item(TableName=TABLE_NAME, Item=item)
-
                 logger.info(f"Inserted metadata for {key} into DynamoDB")
 
         except Exception as e:

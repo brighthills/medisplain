@@ -18,7 +18,7 @@ Resources:
   FileMetadataConsumerRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${AWS::StackName}-consumer-role-${Environment}"
+      RoleName: !Sub "${AWS::StackName}-role-${Environment}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -58,7 +58,7 @@ Resources:
   FileMetadataConsumerFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub "${AWS::StackName}-function-consume-file-metadata-${Environment}"
+      FunctionName: !Sub "${AWS::StackName}-function-${Environment}"
       Handler: consume_file_metadata.handler
       Role: !GetAtt FileMetadataConsumerRole.Arn
       Runtime: python3.11

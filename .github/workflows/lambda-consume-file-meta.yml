@@ -15,7 +15,7 @@ jobs:
       AWS_REGION: eu-central-1
       S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
       ZIP_FILE_NAME: consume-file-metadata.zip
-      LAMBDA_FUNCTION_NAME: bagalyze-metadata-consumer-function-consume-file-metadata-dev
+      LAMBDA_FUNCTION_NAME: bagalyze-file-metadata-consumer-function-dev
 
     steps:
       - name: Checkout code
