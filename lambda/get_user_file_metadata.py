@@ -19,7 +19,16 @@ def handler(event, context):
                 "body": json.dumps({"error": "Missing filename query parameter"})
             }
 
-        sk = f"image#{filename}"
+        extension = filename.lower().split('.')[-1]
+        if extension in ['jpg', 'jpeg', 'png']:
+            sk = f"file#image#{filename}"
+        elif extension == 'pdf':
+            sk = f"file#document#{filename}"
+        else:
+            return {
+                "statusCode": 400,
+                "body": json.dumps({"error": f"Unsupported file type: .{extension}"})
+            }
 
         response = dynamodb.get_item(
             TableName=TABLE_NAME,
@@ -33,7 +42,7 @@ def handler(event, context):
         if not item:
             return {
                 "statusCode": 404,
-                "body": json.dumps({"error": "Image not found"})
+                "body": json.dumps({"error": "File not found"})
             }
 
         return {
@@ -49,12 +58,13 @@ def handler(event, context):
                 "userEmail": item["userEmail"]["S"],
                 "userId": item["userId"]["S"],
                 "uploadTimestamp": item["uploadTimestamp"]["S"],
-                "createdAt": item["createdAt"]["S"]
+                "createdAt": item["createdAt"]["S"],
+                "status": item["status"]["S"],
             })
         }
 
     except Exception as e:
-        logger.error(f"Error retrieving image metadata: {str(e)}")
+        logger.error(f"Error retrieving file metadata: {str(e)}")
         return {
             "statusCode": 500,
             "headers": {

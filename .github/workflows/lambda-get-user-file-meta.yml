@@ -15,7 +15,7 @@ jobs:
       AWS_REGION: eu-central-1
       S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
       ZIP_FILE_NAME: get-user-file-metadata.zip
-      LAMBDA_FUNCTION_NAME: bagalyze-get-user-file-metadata-dev
+      LAMBDA_FUNCTION_NAME: bagalyze-get-user-file-metadata-function-dev
 
     steps:
       - name: Checkout code
