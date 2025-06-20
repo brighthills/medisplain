@@ -41,7 +41,7 @@ def handler(event, context):
             },
             "body": json.dumps({
                 "userId": item['userId']['S'],
-                "email": item['email']['S'],
+                "email": item['userEmail']['S'],
                 "createdAt": item['createdAt']['S']
             })
         }

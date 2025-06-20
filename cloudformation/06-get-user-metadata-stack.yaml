@@ -15,7 +15,7 @@ Resources:
   GetUserMetadataFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Join [ "-", [ !Ref AWS::StackName, "get-user-metadata", !Ref Environment ] ]
+      FunctionName: !Join [ "-", [ !Ref AWS::StackName, "function" ,!Ref Environment ] ]
       Handler: get_user_metadata.handler
       Role: !GetAtt LogAndDynamoAccessLambdaRole.Arn
       Runtime: python3.11
