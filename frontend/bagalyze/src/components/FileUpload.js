@@ -15,43 +15,48 @@ export default function FileUpload() {
 
   const handleUpload = async (event) => {
     const file = event.target.files[0];
-    if (!file || !accessToken) {
-      console.warn("Hiányzik a fájl vagy a token.");
+    if (!file || !accessToken) return;
+
+    // Ellenőrzés: csak PDF engedélyezett
+    if (file.type !== "application/pdf") {
+      alert("❌ Csak PDF fájlokat lehet feltölteni.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result.split(",")[1]; // csak a base64 tartalom
 
-    console.log("Feltöltés indul:", file.name);
-    console.log("Token:", accessToken);
+      const res = await fetch("https://xfi5ufezgc.execute-api.eu-central-1.amazonaws.com/dev/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ image_base64: base64 }),
+      });
 
-    const res = await fetch("https://s3raie13tj.execute-api.eu-central-1.amazonaws.com/dev/upload", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: formData,
-    });
+      const result = await res.json();
 
-    const result = await res.text();
+      if (res.ok) {
+        alert("✅ Sikeres feltöltés!");
+        console.log("Szerver válasz:", result);
+      } else {
+        alert("❌ Hiba a feltöltésnél.");
+        console.error("Hibakód:", res.status);
+        console.error("Hibaüzenet:", result);
+      }
+    };
 
-    if (res.ok) {
-      alert("✅ Sikeres feltöltés!");
-      console.log("Szerver válasz:", result);
-    } else {
-      alert("❌ Hiba a feltöltésnél.");
-      console.error("Hibakód:", res.status);
-      console.error("Hibaüzenet:", result);
-    }
+    reader.readAsDataURL(file);
   };
 
-  if (!accessToken) return <p>Bejelentkezés szükséges...</p>;
+  if (!accessToken) return <p>Login required...</p>;
 
   return (
     <div style={{ padding: "2rem", fontFamily: "Arial" }}>
-      <h2>Feltöltő oldal</h2>
-      <input type="file" onChange={handleUpload} />
+      <h2>PDF feltöltés</h2>
+      <input type="file" accept="application/pdf" onChange={handleUpload} />
     </div>
   );
 }

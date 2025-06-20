@@ -11,7 +11,8 @@ export default function Callback() {
     if (code) {
       exchangeCodeForToken(code)
         .then((data) => {
-          localStorage.setItem("accessToken", data.access_token);
+          console.log(data);
+          localStorage.setItem("accessToken", data.id_token);
           navigate("/"); // vissza a főoldalra
         })
         .catch((err) => {
@@ -23,3 +24,4 @@ export default function Callback() {
 
   return <p>Bejelentkezés folyamatban...</p>;
 }
+ 
