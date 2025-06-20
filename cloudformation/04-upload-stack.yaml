@@ -80,7 +80,7 @@ Resources:
       AllowedOAuthScopes:
         - email
         - openid
-        - profile
+        - phone
       AllowedOAuthFlowsUserPoolClient: true
 
   AdminGroup:
@@ -330,7 +330,7 @@ Resources:
   #       - retrieve one file by user --> pk: user@example.com sk: file#image#vacation1.jpg data: { filename, userEmail, userId, uploadTimestamp, createdAt }
   #           GetItem where:
   #             PK = user@example.com
-  #             SK = file#image#vacation1.jpg
+  #             SK = file#document#specific.pdf
   #       - retrieve many files by user
   #           Query where:
   #             PK = user@example.com
