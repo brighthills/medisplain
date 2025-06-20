@@ -15,7 +15,7 @@ Resources:
   GetUserFileMetadataFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub "${Project}-get-user-file-metadata-${Environment}"
+      FunctionName: !Sub "${StackName}-${Environment}"
       Handler: get_user_file_metadata.handler
       Role: !ImportValue LogAndDynamoAccessLambdaRoleArn
       Runtime: python3.11

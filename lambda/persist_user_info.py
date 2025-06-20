@@ -21,7 +21,7 @@ def handler(event, context):
                 'PK': {'S': email},
                 'SK': {'S': 'info'},
                 'userId': {'S': user_id},
-                'email': {'S': email},
+                'userEmail': {'S': email},
                 'createdAt': {'S': created_at}
             }
         )

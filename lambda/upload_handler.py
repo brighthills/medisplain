@@ -8,7 +8,6 @@ from datetime import datetime
 s3 = boto3.client('s3')
 bucket = os.environ['BUCKET_NAME']
 
-# Detect content type and extension from base64 string prefix
 def get_file_type_and_extension(base64_data):
     if base64_data.startswith('/9j/'):
         return 'image/jpeg', '.jpg'
@@ -69,3 +68,4 @@ def handler(event, context):
                 "Access-Control-Allow-Credentials": True
             },
             "body": json.dumps({"error": str(e)})
+        }
