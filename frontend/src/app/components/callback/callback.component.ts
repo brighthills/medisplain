@@ -34,7 +34,7 @@ export class CallbackComponent implements OnInit {
     this.http.post(tokenUrl, body.toString(), { headers }).subscribe({
       next: (res: any) => {
         console.log('✅ Token response:', res);
-        localStorage.setItem('accessToken', res.access_token); // ✅ javított kulcsnév
+        localStorage.setItem('accessToken', res.id_token);
         this.router.navigate(['/']);
       },
       error: (err) => {

@@ -1,5 +1,30 @@
 @use '../../../styles/_common' as *;
 
+.upload-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: flex-start;
+  background: #fff;
+
+  header {
+    width: 100%;
+    background-color: #f9f2ff;
+    padding: 1.2rem 0;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    .app-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #6a0dad;
+      font-family: 'Helvetica Neue', sans-serif;
+      margin: 0;
+    }
+  }
+}
+
 .upload-container {
   max-width: 500px;
   margin: 4rem auto;
@@ -14,7 +39,7 @@
     font-size: 1.9rem;
     color: #4a0269;
     font-family: 'Helvetica Neue', sans-serif;
-    font-weight: 600; // félkövér
+    font-weight: 600;
   }
 
   .file-upload-wrapper {
@@ -72,5 +97,21 @@
     color: #6a0dad;
     font-weight: 400;
     font-family: 'Helvetica Neue', sans-serif;
+  }
+}
+
+.logout-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background-color: transparent;
+  color: #6a0dad;
+  font-weight: 500;
+  border: none;
+  font-family: 'Helvetica Neue', sans-serif;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
   }
 }

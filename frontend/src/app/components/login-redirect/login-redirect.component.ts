@@ -9,7 +9,6 @@ import { environment } from '../../../enviroments/env';
 })
 export class LoginRedirectComponent implements OnInit {
   ngOnInit(): void {
-    setTimeout(() => {
       const loginUrl = `${environment.cognito.domain}/login?` +
         `client_id=${environment.cognito.clientId}` +
         `&response_type=code` +
@@ -17,6 +16,5 @@ export class LoginRedirectComponent implements OnInit {
         `&redirect_uri=${encodeURIComponent(environment.cognito.redirectUri)}`;
 
       window.location.href = loginUrl;
-    }, 3000); // ⏱ 3 másodperces késleltetés
   }
 }

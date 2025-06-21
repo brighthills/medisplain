@@ -29,14 +29,4 @@ export class ApiService {
       })
     );
   }
-
-  postForm<T>(url: string, formData: FormData): Observable<T> {
-    const headers = this.getAuthHeaders();
-    return this.http.post<T>(url, formData, { headers }).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('❌ API POST (formData) error:', error);
-        return throwError(() => error);
-      })
-    );
-  }
 }

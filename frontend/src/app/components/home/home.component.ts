@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { UploadService } from '../../services/upload.service';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -13,7 +14,9 @@ export class HomeComponent {
   selectedFile: File | null = null;
   message: string = '';
 
-  constructor(private uploadService: UploadService) {}
+  constructor(private uploadService: UploadService,
+    private authService: AuthService
+  ) {}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -36,5 +39,9 @@ export class HomeComponent {
         this.message = 'Upload error!';
       },
     });
+  }
+
+  logout(): void {
+    this.authService.logout();
   }
 }
