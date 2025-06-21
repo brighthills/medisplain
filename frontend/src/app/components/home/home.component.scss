@@ -1,53 +1,76 @@
+@use '../../../styles/_common' as *;
+
 .upload-container {
-  max-width: 600px;
-  margin: 80px auto;
-  padding: 40px;
+  max-width: 500px;
+  margin: 4rem auto;
+  padding: 3rem;
   background: #ffffff;
-  border-radius: 12px;
-  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.05);
-  font-family: 'Segoe UI', sans-serif;
+  border-radius: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
   text-align: center;
 
-  h2 {
-    font-size: 28px;
-    margin-bottom: 24px;
-    color: #2c3e50;
+  .title {
+    margin-bottom: 2rem;
+    font-size: 1.9rem;
+    color: #4a0269;
+    font-family: 'Helvetica Neue', sans-serif;
+    font-weight: 600; // félkövér
   }
 
-  input[type="file"] {
-    display: block;
-    margin: 20px auto;
-    padding: 12px;
-    border: 1px solid #dcdcdc;
-    border-radius: 6px;
-    background: #fafafa;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  .file-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
 
-    &:hover {
-      background: #f0f0f0;
+    input[type='file'] {
+      display: none;
+    }
+
+    .file-select-button {
+      background-color: #6a0dad;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border-radius: 0.5rem;
+      font-weight: 400;
+      font-family: 'Helvetica Neue', sans-serif;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      display: inline-block;
+
+      &:hover {
+        background-color: #5b009e;
+      }
+    }
+
+    .file-name-display {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      background-color: #f9f9f9;
+      color: #333;
+      font-weight: 400;
+      font-family: 'Helvetica Neue', sans-serif;
     }
   }
 
-  button {
-    padding: 12px 28px;
-    background-color: #0066ff;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #004dcc;
-    }
+  .button {
+    @include primary-button;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
   }
 
-  p {
-    margin-top: 20px;
-    color: #333;
-    font-size: 15px;
+  .upload-message {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    color: #6a0dad;
+    font-weight: 400;
+    font-family: 'Helvetica Neue', sans-serif;
   }
 }

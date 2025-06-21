@@ -6,7 +6,8 @@ import { environment } from '../../../enviroments/env';
 @Component({
   selector: 'app-callback',
   standalone: true,
-  template: `<p>Bejelentkezés folyamatban...</p>`,
+    templateUrl: './callback.component.html',
+  styleUrls: ['./callback.component.scss']
 })
 export class CallbackComponent implements OnInit {
   constructor(private http: HttpClient, private router: Router) {}
@@ -32,19 +33,13 @@ export class CallbackComponent implements OnInit {
 
     this.http.post(tokenUrl, body.toString(), { headers }).subscribe({
       next: (res: any) => {
-        console.log('✅ Token válasz:', res);
-
-        if (res.access_token) {
-          localStorage.setItem('accessToken', res.access_token);  // 🛠️ FONTOS: id_token
-          this.router.navigate(['/']);
-        } else {
-          console.error('❌ Nincs accessToken a válaszban.');
-          alert('Bejelentkezés sikertelen.');
-        }
+        console.log('✅ Token response:', res);
+        localStorage.setItem('accessToken', res.access_token); // ✅ javított kulcsnév
+        this.router.navigate(['/']);
       },
       error: (err) => {
-        console.error('❌ Hiba a token lekérésnél:', err);
-        alert('Bejelentkezés sikertelen.');
+        console.error('❌ Error retrieving token:', err);
+        alert('Login failed.');
       },
     });
   }
