@@ -1,0 +1,187 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: WebSocket API Gateway with connect route and DynamoDB integration
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+  DynamoMetadataTableName:
+    Type: String
+    Default: user-file-metadata
+  ConnectFunctionLambdaKey:
+    Type: String
+    Default: ws-connect-handler.zip
+  DisconnectFunctionLambdaKey:
+    Type: String
+    Default: ws-disconnect-handler.zip
+
+Resources:
+  WebSocketApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub "${AWS::StackName}-api-gateway-${Environment}"
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: "$request.body.action"
+
+  WebSocketAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/apigateway/${Project}-websocket-${Environment}"
+      RetentionInDays: 7
+
+  WebSocketApiGatewayLogsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Project}-websocket-logs-role-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: ApiGatewayWebSocketLogs
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  WebSocketConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: "$connect"
+      AuthorizationType: NONE
+      Target: !Join [ "/", [ "integrations", !Ref WebSocketConnectIntegration ] ]
+
+  WebSocketConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub
+        arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ConnectFunction.Arn}/invocations
+      IntegrationMethod: POST
+
+  WebSocketStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref WebSocketApi
+      StageName: dev
+      AutoDeploy: true
+      AccessLogSettings:
+        DestinationArn: !GetAtt WebSocketAccessLogGroup.Arn
+        Format: '{ "requestId":"$context.requestId","ip":"$context.identity.sourceIp","routeKey":"$context.routeKey","status":"$context.status","connectionId":"$context.connectionId","eventType":"$context.eventType","messageId":"$context.messageId" }'
+      DefaultRouteSettings:
+        DataTraceEnabled: true
+        LoggingLevel: INFO
+
+  WsConnectFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${Project}-connect-function-role-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: WebSocketConnectFunctionPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:UpdateItem
+                  - dynamodb:GetItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:PutItem
+                  - dynamodb:Query
+                Resource:
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoMetadataTableName}
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoMetadataTableName}/index/GSI1
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+
+  ConnectFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-connect-function-${Environment}"
+      Runtime: python3.11
+      Handler: ws_connect_handler.handler
+      Role: !GetAtt WsConnectFunctionRole.Arn
+      Timeout: 10
+      Code:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref ConnectFunctionLambdaKey
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoMetadataTableName
+
+  PermissionForConnectFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ConnectFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/$connect
+
+  DisconnectFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-disconnect-function-${Environment}"
+      Runtime: python3.11
+      Handler: ws_disconnect_handler.handler
+      Role: !GetAtt WsConnectFunctionRole.Arn  # Reuse same role for simplicity
+      Timeout: 10
+      Code:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref DisconnectFunctionLambdaKey
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref DynamoMetadataTableName
+
+  PermissionForDisconnectFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DisconnectFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/$disconnect
+
+  WebSocketDisconnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub
+        arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DisconnectFunction.Arn}/invocations
+      IntegrationMethod: POST
+
+  WebSocketDisconnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: "$disconnect"
+      AuthorizationType: NONE
+      Target: !Join [ "/", [ "integrations", !Ref WebSocketDisconnectIntegration ] ]
+
+Outputs:
+  WebSocketApiEndpoint:
+    Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/dev"
+    Export:
+      Name: WebSocketApiEndpoint
