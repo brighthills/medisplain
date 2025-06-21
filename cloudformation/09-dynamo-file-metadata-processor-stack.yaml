@@ -13,6 +13,12 @@ Parameters:
   DynamoMetadataTableName:
     Type: String
     Default: user-file-metadata
+  WebsocketEndpoint:
+    Type: String
+    Default: wss://a9iwmgn508.execute-api.eu-central-1.amazonaws.com/dev
+  WebsocketApiArn:
+    Type: String
+    Default: arn:aws:execute-api:eu-central-1:447923164625:a9iwmgn508/*/$connect
 
 Resources:
   DynamoStreamFileMetadataProcessorFunction:
@@ -29,6 +35,8 @@ Resources:
       Environment:
         Variables:
           QUEUE_URL: !ImportValue FileToAnalyzeQueueRef
+          TABLE_NAME: !Ref DynamoMetadataTableName
+          WEBSOCKET_ENDPOINT: !Ref WebsocketEndpoint
 
   DynamoStreamFileMetadataProcessorRole:
     Type: AWS::IAM::Role
@@ -61,7 +69,12 @@ Resources:
                   - dynamodb:GetShardIterator
                   - dynamodb:DescribeStream
                   - dynamodb:ListStreams
+                  - dynamodb:GetItem
                 Resource: !ImportValue UserFileMetadataTableStreamArn
+              - Effect: Allow
+                Action:
+                  - execute-api:ManageConnections
+                Resource: !Ref WebsocketApiArn
 
   DynamoStreamMapping:
     Type: AWS::Lambda::EventSourceMapping
