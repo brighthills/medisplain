@@ -14,14 +14,61 @@ Resources:
     Properties:
       QueueName: !Join [ "-", [ !Ref AWS::StackName, "file-upload", !Ref Environment ] ]
       VisibilityTimeout: 30
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FileUploadDeadLetterQueue.Arn
+        maxReceiveCount: 1  # Move to DLQ after 1 failed receive (i.e., Lambda error)
+
+  FileUploadDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ "-", [ !Ref AWS::StackName, "file-upload-dlq", !Ref Environment ] ]
+      MessageRetentionPeriod: 1209600  # 14 days
+
+  FileToAnalyzeQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ "-", [ !Ref AWS::StackName, "file-to-analyze", !Ref Environment ] ]
+      VisibilityTimeout: 30
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt FileToAnalyzeDeadLetterQueue.Arn
+        maxReceiveCount: 1
+
+  FileToAnalyzeDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join [ "-", [ !Ref AWS::StackName, "file-to-analyze-dlq", !Ref Environment ] ]
+      MessageRetentionPeriod: 1209600
 
 Outputs:
   FileUploadQueueRef:
     Value: !Ref FileUploadQueue
     Export:
       Name: FileUploadQueueRef
-
   FileUploadQueueArn:
     Value: !GetAtt FileUploadQueue.Arn
     Export:
       Name: FileUploadQueueArn
+  FileToAnalyzeQueueRef:
+    Value: !Ref FileToAnalyzeQueue
+    Export:
+      Name: FileToAnalyzeQueueRef
+  FileToAnalyzeQueueArn:
+    Value: !GetAtt FileToAnalyzeQueue.Arn
+    Export:
+      Name: FileToAnalyzeQueueArn
+  FileUploadDeadLetterQueueRef:
+    Value: !Ref FileUploadDeadLetterQueue
+    Export:
+      Name: FileUploadDeadLetterQueueRef
+  FileUploadDeadLetterQueueArn:
+    Value: !GetAtt FileUploadDeadLetterQueue.Arn
+    Export:
+      Name: FileUploadDeadLetterQueueArn
+  FileToAnalyzeDeadLetterQueueRef:
+    Value: !Ref FileToAnalyzeDeadLetterQueue
+    Export:
+      Name: FileToAnalyzeDeadLetterQueueRef
+  FileToAnalyzeDeadLetterQueueArn:
+    Value: !GetAtt FileToAnalyzeDeadLetterQueue.Arn
+    Export:
+      Name: FileToAnalyzeDeadLetterQueueArn
