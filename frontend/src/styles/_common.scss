@@ -1,0 +1,23 @@
+// common.scss
+
+@mixin primary-button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #6a0dad; // Lila árnyalat
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #5800b0;
+  }
+
+  &:disabled {
+    background-color: #c7a3e3;
+    cursor: not-allowed;
+  }
+}

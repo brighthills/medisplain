@@ -1,0 +1,27 @@
+<div class="upload-container">
+  <h2 class="title">PDF upload</h2>
+
+  <div class="file-upload-wrapper">
+    <label class="file-select-button" for="fileInput">Choose a file</label>
+    <input
+      type="file"
+      id="fileInput"
+      (change)="onFileSelected($event)"
+      accept="application/pdf"
+    />
+
+    <input
+      type="text"
+      class="file-name-display"
+      [value]="selectedFile?.name || ''"
+      placeholder="No file selected"
+      readonly
+    />
+  </div>
+
+  <button class="button" (click)="uploadFile()" [disabled]="!selectedFile">
+    Upload
+  </button>
+
+  <p *ngIf="message" class="upload-message">{{ message }}</p>
+</div>
