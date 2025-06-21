@@ -18,4 +18,17 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/home/home.component').then((m) => m.HomeComponent),
   },
+  {
+    path: 'files',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/file-list/file-list.component').then((m) => m.FileListComponent),
+  },
+  {
+    path: 'user-meta',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/user-meta/user-meta.component').then((m) => m.UserMetaComponent),
+  }
+
 ];

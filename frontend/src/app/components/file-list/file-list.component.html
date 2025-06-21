@@ -1,0 +1,15 @@
+<!-- file-list.component.html -->
+<div class="file-list-page">
+  <h2 class="title">Uploaded Files</h2>
+
+  <div *ngIf="loading" class="status">Loading...</div>
+  <div *ngIf="error" class="status error">{{ error }}</div>
+
+  <ul *ngIf="!loading && files.length" class="file-list">
+    <li *ngFor="let file of files" class="file-item">
+      📄 {{ file }}
+    </li>
+  </ul>
+
+  <div *ngIf="!loading && !files.length" class="status">No files found.</div>
+</div>

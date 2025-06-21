@@ -15,6 +15,10 @@ export class HeaderComponent {
     this.isLoggedIn = !!token;
   }
 
+  navigateHome() {
+    this.router.navigate(['']);
+  }
+
   logout() {
     localStorage.removeItem('accessToken');
     this.router.navigate(['/login-redirect']);

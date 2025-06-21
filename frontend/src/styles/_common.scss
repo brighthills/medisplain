@@ -1,23 +1,60 @@
 // common.scss
 
 @mixin primary-button {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #fff;
-  background-color: #6a0dad; // Lila árnyalat
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #6a0dad; // Lila árnyalat
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 
-  &:hover {
-    background-color: #5800b0;
-  }
+    &:hover {
+        background-color: #5800b0;
+    }
 
-  &:disabled {
-    background-color: #c7a3e3;
-    cursor: not-allowed;
-  }
+    &:disabled {
+        background-color: #c7a3e3;
+        cursor: not-allowed;
+    }
+}
+
+.secondary-button {
+    background-color: #ffffff;
+    color: #6a0dad;
+    border: 2px solid #6a0dad;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-family: "Helvetica Neue", sans-serif;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+        background-color: #f4ebff;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.navigation-link {
+    margin-top: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: row; // csak biztos, hogy vízszintesen legyen
+    gap: 1rem;
+    align-items: center; // opcionális, ha gombok különböző magasságúak
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #222;
 }

@@ -1,0 +1,26 @@
+.user-meta-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0.75rem 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .error {
+    color: #d32f2f;
+    font-weight: bold;
+    margin-top: 1rem;
+  }
+}

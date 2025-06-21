@@ -1,0 +1,12 @@
+<div class="user-meta-container">
+  <h2>User Metadata</h2>
+
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div *ngIf="userMetadata">
+    <p><strong>User ID:</strong> {{ userMetadata.userId }}</p>
+    <p><strong>Email:</strong> {{ userMetadata.email }}</p>
+    <p><strong>Created At:</strong> {{ userMetadata.createdAt | date: 'medium' }}</p>
+  </div>
+</div>

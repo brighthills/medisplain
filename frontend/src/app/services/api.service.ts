@@ -11,6 +11,7 @@ export class ApiService {
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('accessToken');
+    
     if (!token) {
       throw new Error('❌ Nincs access token');
     }
@@ -22,6 +23,7 @@ export class ApiService {
 
   post<T>(url: string, body: any, contentType = 'application/json'): Observable<T> {
     const headers = this.getAuthHeaders().set('Content-Type', contentType);
+
     return this.http.post<T>(url, body, { headers }).pipe(
       catchError((error: HttpErrorResponse) => {
         console.error('❌ API POST error:', error);
@@ -29,4 +31,16 @@ export class ApiService {
       })
     );
   }
+
+  get<T>(url: string): Observable<T> {
+  const headers = this.getAuthHeaders();
+
+  return this.http.get<T>(url, { headers }).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('❌ API GET error:', error);
+      return throwError(() => error);
+    })
+  );
+}
+
 }

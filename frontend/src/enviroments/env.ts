@@ -7,6 +7,8 @@ export const environment = {
     responseType: 'code',
   },
   api: {
-    uploadUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/upload'
+    uploadUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/upload',
+    filesUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/files',
+    userMetaUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/user',
   }
 };
