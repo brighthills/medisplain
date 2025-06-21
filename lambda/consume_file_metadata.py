@@ -51,6 +51,8 @@ def handler(event, context):
                     logger.warning(f"Unsupported file type for {key}, skipping")
                     continue
 
+                s3_location = f"s3://{bucket}/{key}"
+
                 item = {
                     'PK': {'S': user_email},
                     'SK': {'S': f'{sk_prefix}{key}'},
@@ -59,7 +61,8 @@ def handler(event, context):
                     'userId': {'S': user_id},
                     'uploadTimestamp': {'S': upload_timestamp},
                     'createdAt': {'S': createdAt},
-                    'status': {'S': STATUS}
+                    'status': {'S': STATUS},
+                    's3Location': {'S': s3_location}
                 }
 
                 # Store metadata in DynamoDB
