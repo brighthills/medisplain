@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DynamoDb Lambda stream processor
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+  FunctionAIProcessConsumerName:
+    Type: String
+    Default: file-metadata-stream-processor.zip
+  DynamoMetadataTableName:
+    Type: String
+    Default: user-file-metadata
+
+Resources:
+  DynamoStreamFileMetadataProcessorFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-function-${Environment}"
+      Handler: file_metadata_stream_processor.handler
+      Role: !GetAtt DynamoStreamFileMetadataProcessorRole.Arn
+      Runtime: python3.11
+      Timeout: 10
+      Code:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref FunctionAIProcessConsumerName
+      Environment:
+        Variables:
+          QUEUE_URL: !ImportValue FileToAnalyzeQueueRef
+
+  DynamoStreamFileMetadataProcessorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: StreamToSQS
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource: !ImportValue FileToAnalyzeQueueArn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:DescribeStream
+                  - dynamodb:ListStreams
+                Resource: !ImportValue UserFileMetadataTableStreamArn
+
+  DynamoStreamMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !ImportValue UserFileMetadataTableStreamArn
+      FunctionName: !Ref DynamoStreamFileMetadataProcessorFunction
+      StartingPosition: LATEST
+      BatchSize: 5
+      Enabled: true

@@ -54,6 +54,10 @@ Resources:
                   - sqs:DeleteMessage
                   - sqs:GetQueueAttributes
                 Resource: !ImportValue FileUploadQueueArn
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource: !ImportValue FileUploadDeadLetterQueueArn
 
   FileMetadataConsumerFunction:
     Type: AWS::Lambda::Function
@@ -69,6 +73,9 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref DynamoMetadataTableName
+      # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
+      DeadLetterConfig:
+        TargetArn: !ImportValue FileUploadDeadLetterQueueArn
 
   FileUploadQueueEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
