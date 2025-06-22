@@ -1,0 +1,175 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: API /download from S3 via Lambda
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+  FunctionDownloadHandlerKey:
+    Type: String
+    Default: file-download-handler.zip
+  CloudFrontKeyPairId:
+    Type: String
+    Description: The CloudFront key pair ID associated with private key
+  CloudFrontPrivateKeySecretName:
+    Type: String
+
+Resources:
+  # S3 bucket will only allow CloudFront (with OAC-enabled distribution --> CloudFrontDownloadOAC) to access the files
+  FileUploadBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !ImportValue FileUploadBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontReadAccess
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub
+            - "arn:aws:s3:::${UploadBucket}/*"
+            - UploadBucket: !ImportValue FileUploadBucket
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub
+                - "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistributionId}"
+                - CloudFrontDistributionId: !ImportValue CloudFrontDownloadDistribution
+
+  CryptographyLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: cryptography
+      Description: Layer with cryptography library for Lambda
+      Content:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: layers/cryptography-layer.zip
+      CompatibleRuntimes:
+        - python3.11
+      LicenseInfo: "MIT"
+
+  FileDownloadHandlerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-function-${Environment}"
+      Handler: file_download_handler.handler
+      Role: !GetAtt FileDownloadHandlerRole.Arn
+      Runtime: python3.11
+      Timeout: 10
+      Code:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: !Ref FunctionDownloadHandlerKey
+      Layers:
+        - !Ref CryptographyLayer
+      Environment:
+        Variables:
+          BUCKET_NAME: !ImportValue FileUploadBucket
+          CLOUDFRONT_PRIVATE_KEY_SECRET_NAME: !Ref CloudFrontPrivateKeySecretName
+          CLOUDFRONT_KEY_PAIR_ID: !Ref CloudFrontKeyPairId
+          CLOUDFRONT_URL_DOMAIN: !ImportValue CloudFrontDownloadDistributionDomainName
+
+  FileDownloadHandlerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-role-${Environment}"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaS3DownloadAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:HeadObject
+                Resource: !Sub
+                  - "arn:aws:s3:::${BucketName}/*"
+                  - BucketName: !ImportValue FileUploadBucket
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !Ref CloudFrontPrivateKeySecretName
+
+  ApiGatewayFileDownloadHandlerResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId: !ImportValue ApiGatewayRestApi
+      ParentId: !ImportValue ApiGatewayRestApiRootResourceId
+      PathPart: download
+
+  ApiGatewayFileDownloadHandlerMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId: !Ref ApiGatewayFileDownloadHandlerResource
+      RestApiId: !ImportValue ApiGatewayRestApi
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !ImportValue ApiAuthorizer
+      RequestParameters:
+        method.request.querystring.filename: true
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri: !Sub
+          - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+          - Region: !Ref AWS::Region
+            LambdaArn: !GetAtt FileDownloadHandlerFunction.Arn
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Credentials: true
+
+  ApiGatewayFileDownloadHandlerMethodOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId: !Ref ApiGatewayFileDownloadHandlerResource
+      RestApiId: !ImportValue ApiGatewayRestApi
+      AuthorizationType: NONE
+      Integration:
+        Type: MOCK
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
+              method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET'"
+              method.response.header.Access-Control-Allow-Credentials: "'true'"
+            ResponseTemplates:
+              application/json: ""
+        RequestTemplates:
+          application/json: '{ "statusCode": 200 }'
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Credentials: true
+
+  LambdaFileDownloadHandlerPermission:
+    Type: AWS::Lambda::Permission
+    DependsOn: FileDownloadHandlerFunction
+    Properties:
+      FunctionName: !GetAtt FileDownloadHandlerFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub
+        - arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApiId}/*/GET/download
+        - RestApiId: !ImportValue ApiGatewayRestApi

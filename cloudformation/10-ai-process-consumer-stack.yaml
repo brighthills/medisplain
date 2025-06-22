@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: SQS Lambda consumer, to DynamoDb
+Description: SQS Lambda consumer, to AI process, then DynamoDb
 
 Parameters:
   Environment:
@@ -7,15 +7,15 @@ Parameters:
   Project:
     Type: String
     Default: bagalyze
-  FunctionConsumeName:
+  FunctionAIProcessConsumerName:
     Type: String
-    Default: consume-file-metadata.zip
+    Default: consume-file-ai-process.zip
   DynamoMetadataTableName:
     Type: String
     Default: user-file-metadata
 
 Resources:
-  FileMetadataConsumerRole:
+  FileAIProcessConsumerRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "${AWS::StackName}-role-${Environment}"
@@ -34,6 +34,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:PutItem
+                  - dynamodb:UpdateItem
                 Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoMetadataTableName}"
               - Effect: Allow
                 Action:
@@ -53,34 +54,46 @@ Resources:
                   - sqs:ReceiveMessage
                   - sqs:DeleteMessage
                   - sqs:GetQueueAttributes
-                Resource: !ImportValue FileUploadQueueArn
+                Resource: !ImportValue FileToAnalyzeQueueArn
               - Effect: Allow
                 Action:
-                  - sqs:SendMessage
-                Resource: !ImportValue FileUploadDeadLetterQueueArn
+                  - sqs:sendMessage
+                Resource: !ImportValue FileToAnalyzeDeadLetterQueueArn
+                # ToDo: access to Lambda function should be granted to allow certain actions to be done on AI service/tool
+                #   - Effect: Allow
+                #     Action:
+                #       <actions-enlisted-to-allow-on-ai-tool>
+                #     Resource: <resource-arn-of-the-ai-service>
 
-  FileMetadataConsumerFunction:
+  FileAIProcessConsumerFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: !Sub "${AWS::StackName}-function-${Environment}"
-      Handler: consume_file_metadata.handler
-      Role: !GetAtt FileMetadataConsumerRole.Arn
+      Handler: consume_file_ai_process.handler
+      Role: !GetAtt FileAIProcessConsumerRole.Arn
       Runtime: python3.11
       Timeout: 15
       Code:
         S3Bucket: !ImportValue LambdaCodeBucket
-        S3Key: !Ref FunctionConsumeName
+        S3Key: !Ref FunctionAIProcessConsumerName
       Environment:
         Variables:
           TABLE_NAME: !Ref DynamoMetadataTableName
       # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
       DeadLetterConfig:
-        TargetArn: !ImportValue FileUploadDeadLetterQueueArn
+        TargetArn: !ImportValue FileToAnalyzeDeadLetterQueueArn
 
   FileUploadQueueEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
       BatchSize: 1
-      EventSourceArn: !ImportValue FileUploadQueueArn
-      FunctionName: !Ref FileMetadataConsumerFunction
+      EventSourceArn: !ImportValue FileToAnalyzeQueueArn
+      FunctionName: !Ref FileAIProcessConsumerFunction
       Enabled: true
+
+Outputs:
+  FileAIProcessConsumerFunction:
+    Description: AI process Lambda
+    Value: !Ref FileAIProcessConsumerFunction
+    Export:
+      Name: FileAIProcessConsumerFunction

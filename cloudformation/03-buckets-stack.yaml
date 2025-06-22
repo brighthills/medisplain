@@ -28,6 +28,11 @@ Resources:
     Properties:
       BucketName: !Join ["-", [!Ref AWS::StackName, "lambda-code", !Ref Environment]]
 
+  LambdaSecurityBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ "-", [ !Ref AWS::StackName, "security", !Ref Environment ] ]
+
   # allows all Lambda functions inside the account to retrieve objects from the LambdaCodeBucket
   LambdaCodeBucketPolicy:
     Type: AWS::S3::BucketPolicy
@@ -101,5 +106,9 @@ Outputs:
     Value: !GetAtt LambdaUploadExecutionRole.Arn
     Export:
       Name: LambdaUploadExecutionRole
+  LambdaSecurityBucket:
+    Value: !Ref LambdaSecurityBucket
+    Export:
+      Name: LambdaSecurityBucket
 
 
