@@ -115,10 +115,4 @@
     text-decoration: underline;
   }
 
-  .navigation-link {
-    display: flex;
-    flex-direction: row; // csak biztos, hogy vízszintesen legyen
-    gap: 1rem;
-    align-items: center; // opcionális, ha gombok különböző magasságúak
-  }
 }

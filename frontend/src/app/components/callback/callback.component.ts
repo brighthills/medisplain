@@ -2,15 +2,19 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../enviroments/env';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-callback',
   standalone: true,
-    templateUrl: './callback.component.html',
+  templateUrl: './callback.component.html',
   styleUrls: ['./callback.component.scss']
 })
 export class CallbackComponent implements OnInit {
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private auth:AuthService) { }
 
   ngOnInit(): void {
     const code = new URLSearchParams(window.location.search).get('code');
@@ -34,7 +38,7 @@ export class CallbackComponent implements OnInit {
     this.http.post(tokenUrl, body.toString(), { headers }).subscribe({
       next: (res: any) => {
         console.log('✅ Token response:', res);
-        localStorage.setItem('accessToken', res.id_token);
+        this.auth.login(res);
         this.router.navigate(['/']);
       },
       error: (err) => {
