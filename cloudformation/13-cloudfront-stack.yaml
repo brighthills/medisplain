@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFront OAC and distro
+
+Parameters:
+  Environment:
+    Type: String
+  Project:
+    Type: String
+    Default: bagalyze
+
+Resources:
+  CloudFrontDownloadOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${AWS::StackName}-download-access-control-${Environment}"
+        Description: Access control for CloudFront to access S3
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDownloadDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: ''
+        Origins:
+          - Id: S3Origin
+            DomainName: !Sub
+              - "${UploadBucket}.s3.${AWS::Region}.amazonaws.com"
+              - UploadBucket: !ImportValue FileUploadBucket
+            OriginAccessControlId: !Ref CloudFrontDownloadOAC
+            S3OriginConfig: { }  # Must be included but stays empty when using OAC
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [ GET, HEAD ]
+          CachedMethods: [ GET, HEAD ]
+          ForwardedValues:
+            QueryString: true
+            Cookies:
+              Forward: none
+          TrustedKeyGroups: [ ]  # You'll use CloudFront key pairs for signing instead
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        PriceClass: PriceClass_100
+        HttpVersion: http2
+
+
+Outputs:
+  CloudFrontDownloadDistributionDomainName:
+    Value: !GetAtt CloudFrontDownloadDistribution.DomainName
+    Export:
+      Name: CloudFrontDownloadDistributionDomainName
+  CloudFrontDownloadDistribution:
+    Value: !Ref CloudFrontDownloadDistribution
+    Export:
+      Name: CloudFrontDownloadDistribution
