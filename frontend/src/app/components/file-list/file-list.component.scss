@@ -1,6 +1,125 @@
-// file-list.component.scss
-.file-list-page {
-  max-width: 600px;
+@use "../../../styles/_common" as *;
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9fafb;
+
+  app-sidebar {
+    flex: 0 0 260px;
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    overflow: auto;
+  }
+}
+
+.report-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.report-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 1rem 1.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f3f4f6;
+  }
+
+  .report-info {
+    .report-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+      color: #111827;
+    }
+
+    .report-meta {
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+  }
+
+  .report-action {
+    display: flex;
+    align-items: center;
+
+    .btn {
+      background-color: #714ffc;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #5b3fd1;
+      }
+    }
+
+    .loading-indicator {
+      font-size: 0.875rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
+.no-files {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.upload-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: flex-start;
+  background: #fff;
+
+  header {
+    width: 100%;
+    background-color: #f9f2ff;
+    padding: 1.2rem 0;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    .app-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #6a0dad;
+      font-family: "Helvetica Neue", sans-serif;
+      margin: 0;
+    }
+  }
+}
+
+.upload-container {
+  max-width: 500px;
   margin: 4rem auto;
   padding: 3rem;
   background: #ffffff;
@@ -9,36 +128,83 @@
   text-align: center;
 
   .title {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #4a0269;
     margin-bottom: 2rem;
-    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 1.9rem;
+    color: #4a0269;
+    font-family: "Helvetica Neue", sans-serif;
+    font-weight: 600;
   }
 
-  .file-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    
-    .file-item {
-      padding: 0.75rem 1rem;
-      margin-bottom: 0.5rem;
-      background-color: #f4ecff;
+  .file-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-select-button {
+      background-color: #6a0dad;
+      color: white;
+      padding: 0.6rem 1.2rem;
       border-radius: 0.5rem;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-weight: 400;
+      font-family: "Helvetica Neue", sans-serif;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      display: inline-block;
+
+      &:hover {
+        background-color: #5b009e;
+      }
+    }
+
+    .file-name-display {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      background-color: #f9f9f9;
       color: #333;
-      text-align: left;
+      font-weight: 400;
+      font-family: "Helvetica Neue", sans-serif;
     }
   }
 
-  .status {
-    font-size: 1rem;
-    color: #666;
-    margin-top: 1rem;
+  .button {
+    @include primary-button;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
 
-    &.error {
-      color: #d64545;
-    }
+  .upload-message {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    color: #6a0dad;
+    font-weight: 400;
+    font-family: "Helvetica Neue", sans-serif;
+  }
+}
+
+.logout-button {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background-color: transparent;
+  color: #6a0dad;
+  font-weight: 500;
+  border: none;
+  font-family: "Helvetica Neue", sans-serif;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
   }
 }

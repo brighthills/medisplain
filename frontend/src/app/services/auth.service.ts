@@ -11,7 +11,11 @@ export class AuthService {
 
   login(res: any): void {
     // Store the access token in localStorage
-    localStorage.setItem('accessToken', res.id_token);
+    const idToken = res.id_token ?? '';
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    const email = payload?.email ?? '';
+    localStorage.setItem('accessToken', idToken);
+    localStorage.setItem('email', email);
 
     // Establish WebSocket connection with the token
     this.webSocketService.connect(res);
@@ -19,11 +23,11 @@ export class AuthService {
 
 
   logout(): void {
-    // Clear local storage
-    localStorage.removeItem('accessToken');
-
-    // Redirect to Cognito logout
-    const logoutUrl = `${environment.cognito.domain}/logout?client_id=${environment.cognito.clientId}&logout_uri=${environment.cognito.redirectUri}`;
+    localStorage.clear();
+    const logoutUrl = `${environment.cognito.domain}/logout` +
+      `?client_id=${environment.cognito.clientId}` +
+      `&logout_uri=http://localhost:4200/logout`; // vagy ami tényleg be van állítva
     window.location.href = logoutUrl;
   }
+
 }

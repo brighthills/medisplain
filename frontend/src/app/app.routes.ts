@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth.guard'; // ez legyen legfelül!
 
+const homeLoader = () =>
+  import('./components/home/home.component').then((m) => m.HomeComponent);
+
 export const routes: Routes = [
   {
     path: 'login-redirect',
@@ -15,8 +18,7 @@ export const routes: Routes = [
   {
     path: '',
     canActivate: [authGuard],
-    loadComponent: () =>
-      import('./components/home/home.component').then((m) => m.HomeComponent),
+    loadComponent: homeLoader,
   },
   {
     path: 'files',
@@ -27,8 +29,13 @@ export const routes: Routes = [
   {
     path: 'user-meta',
     canActivate: [authGuard],
-    loadComponent: () =>
+      loadComponent: () =>
       import('./components/user-meta/user-meta.component').then((m) => m.UserMetaComponent),
-  }
+  },
+    {
+    path: 'logout',
+    canActivate: [authGuard],
+    loadComponent: homeLoader,
+  },
 
 ];

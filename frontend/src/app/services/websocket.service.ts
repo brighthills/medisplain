@@ -1,5 +1,6 @@
 // websocket.service.ts
 import { Injectable } from '@angular/core';
+import { environment } from '../../enviroments/env';
 
 @Injectable({
   providedIn: 'root',
@@ -11,9 +12,9 @@ export class WebSocketService {
 
   // Connect to the WebSocket after successful login
   connect(token: string): void {
-    const email = 'rmezes@brighthills.com';
+    const email = localStorage.getItem('email') ?? '';
 
-    const socketUrl = `wss://a9iwmgn508.execute-api.eu-central-1.amazonaws.com/dev/?email=${encodeURIComponent(email)}`;
+    const socketUrl = environment.api.webSocketUrl.replace('{email}', email);
     this.socket = new WebSocket(socketUrl);
 
     // Send the access token once connected
