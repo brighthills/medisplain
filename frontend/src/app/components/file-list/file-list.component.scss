@@ -3,7 +3,7 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
   background-color: #f9fafb;
 
   app-sidebar {
@@ -59,6 +59,10 @@
   .report-action {
     display: flex;
     align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    min-height: 38px;
+    position: relative;
 
     .btn {
       background-color: #714ffc;
@@ -76,12 +80,24 @@
       }
     }
 
-    .loading-indicator {
-      font-size: 0.875rem;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 2px solid rgba(113, 79, 252, 0.2);
+      border-top-color: #714ffc;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
     }
+
+    .loading-indicator {
+      display: none; // elavult, leváltva spinnerre
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

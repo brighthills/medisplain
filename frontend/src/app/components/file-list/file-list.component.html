@@ -7,11 +7,11 @@
       </p>
     </div>
     <div class="report-action">
-      <ng-container *ngIf="file.ready">
+      <ng-container *ngIf="file.status === 'done'">
         <button class="btn">⬇ Download</button>
       </ng-container>
-      <ng-container *ngIf="!file.ready">
-        <div class="loading-indicator">Processing...</div>
+      <ng-container *ngIf="file.status === 'processing'">
+        <span class="spinner"></span>
       </ng-container>
     </div>
   </div>
@@ -22,3 +22,4 @@
     <p>No uploaded documents found.</p>
   </div>
 </ng-template>
+<span class="spinner"></span>
