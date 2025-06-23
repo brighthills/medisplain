@@ -8,13 +8,13 @@ import { environment } from '../../enviroments/env';
 export class WebSocketService {
   private socket: WebSocket | null = null;
 
-  constructor() {}
+  constructor() { }
 
   // Connect to the WebSocket after successful login
   connect(token: string): void {
-    const email = localStorage.getItem('email') ?? '';
+    const email = encodeURIComponent(localStorage.getItem('email') ?? '');
+    const socketUrl = `${environment.api.webSocketBaseUrl}?email=${email}`;
 
-    const socketUrl = environment.api.webSocketUrl.replace('{email}', email);
     this.socket = new WebSocket(socketUrl);
 
     // Send the access token once connected

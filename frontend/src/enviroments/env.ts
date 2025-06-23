@@ -10,6 +10,7 @@ export const environment = {
     uploadUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/upload',
     filesUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/files',
     userMetaUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/user',
-    webSocketUrl: '`wss://a9iwmgn508.execute-api.eu-central-1.amazonaws.com/dev/?email=${encodeURIComponent(email)}`', 
+    webSocketBaseUrl: 'wss://a9iwmgn508.execute-api.eu-central-1.amazonaws.com/dev/'
+, 
   }
 };
