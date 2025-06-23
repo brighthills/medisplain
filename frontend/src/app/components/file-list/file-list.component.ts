@@ -12,8 +12,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./file-list.component.scss']
 })
 export class FileListComponent implements OnInit {
-  files: string[] = [];
-  loading = true;
+  files: any[] = [];
   error: string | null = null;
 
   constructor(private api: ApiService) {}
@@ -23,12 +22,10 @@ export class FileListComponent implements OnInit {
       .subscribe({
         next: (res) => {
           this.files = res;
-          this.loading = false;
         },
         error: (err) => {
           this.error = 'Failed to load files.';
           console.error(err);
-          this.loading = false;
         }
       });
   }

@@ -4,21 +4,28 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { RouterModule } from '@angular/router';
 import { LoadingService } from '../../services/loading.service';
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { FileListComponent } from '../file-list/file-list.component';
+
+
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, SidebarComponent, FileListComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
+
 export class HomeComponent {
+
   selectedFile: File | null = null;
   message: string = '';
+  files = [];
 
-  constructor(private loadingService:LoadingService,private uploadService: UploadService,
-    private authService: AuthService
-  ) {}
+  constructor(private uploadService: UploadService,
+    private authService: AuthService,
+  ) { }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -33,15 +40,15 @@ export class HomeComponent {
 
     this.uploadService.uploadPdf(this.selectedFile).subscribe(
       {
-      next: (res: any) => {
-        console.log('✅ Upload successful:', res);
-        this.message = 'Upload successful!';
-      },
-      error: (err: any) => {
-        console.error('❌ Upload error:', err);
-        this.message = 'Upload error!';
-      },
-    });
+        next: (res: any) => {
+          console.log('✅ Upload successful:', res);
+          this.message = 'Upload successful!';
+        },
+        error: (err: any) => {
+          console.error('❌ Upload error:', err);
+          this.message = 'Upload error!';
+        },
+      });
   }
 
   logout(): void {

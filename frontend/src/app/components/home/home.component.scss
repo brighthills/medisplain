@@ -1,5 +1,25 @@
 @use "../../../styles/_common" as *;
 
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9fafb;
+
+  app-sidebar {
+    flex: 0 0 260px;
+  }
+
+  .main-content {
+    flex: 1;
+    padding: 2rem 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    overflow: auto;
+  }
+}
+
 .upload-page-wrapper {
   display: flex;
   flex-direction: column;
@@ -114,5 +134,4 @@
   &:hover {
     text-decoration: underline;
   }
-
 }

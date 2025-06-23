@@ -1,15 +1,24 @@
-<!-- file-list.component.html -->
-<div class="file-list-page">
-  <h2 class="title">Uploaded Files</h2>
+<ng-container *ngIf="files.length > 0; else noFiles">
+  <div class="report-item" *ngFor="let file of files">
+    <div class="report-info">
+      <h3 class="report-name">{{ file.filename }}</h3>
+      <p class="report-meta">
+        Uploaded on {{ file.createdAt | date : "medium" }}
+      </p>
+    </div>
+    <div class="report-action">
+      <ng-container *ngIf="file.ready">
+        <button class="btn">⬇ Download</button>
+      </ng-container>
+      <ng-container *ngIf="!file.ready">
+        <div class="loading-indicator">Processing...</div>
+      </ng-container>
+    </div>
+  </div>
+</ng-container>
 
-  <div *ngIf="loading" class="status">Loading...</div>
-  <div *ngIf="error" class="status error">{{ error }}</div>
-
-  <ul *ngIf="!loading && files.length" class="file-list">
-    <li *ngFor="let file of files" class="file-item">
-      📄 {{ file }}
-    </li>
-  </ul>
-
-  <div *ngIf="!loading && !files.length" class="status">No files found.</div>
-</div>
+<ng-template #noFiles>
+  <div class="no-files">
+    <p>No uploaded documents found.</p>
+  </div>
+</ng-template>
