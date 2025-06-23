@@ -15,13 +15,15 @@ export class FileListComponent implements OnInit {
   files: any[] = [];
   error: string | null = null;
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService) { }
 
   ngOnInit(): void {
-    this.api.get<string[]>(environment.api.filesUrl)
+    this.api.get<any[]>(environment.api.filesUrl)
       .subscribe({
         next: (res) => {
-          this.files = res;
+          this.files = res.sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         },
         error: (err) => {
           this.error = 'Failed to load files.';
