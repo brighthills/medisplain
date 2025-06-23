@@ -4,7 +4,9 @@ from datetime import datetime, timedelta
 import urllib.request
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.backends import default_backend
-from aws_cloudfront_signer import CloudFrontSigner
+from botocore.signers import CloudFrontSigner
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
 
 secrets = boto3.client('secretsmanager')
 s3 = boto3.client('s3')
@@ -17,10 +19,13 @@ def rsa_signer(message):
         password=None,
         backend=default_backend()
     )
-    return key.sign(message)
+    return key.sign(
+        message,
+        padding.PKCS1v15(),
+        hashes.SHA1()  # CloudFront **requires** SHA1
+    )
 
 def handler(event, context):
-    return {"version": cryptography.__version__}
     try:
         filename = event['queryStringParameters'].get('filename')
         if not filename:

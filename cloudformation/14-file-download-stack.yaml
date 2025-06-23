@@ -37,7 +37,7 @@ Resources:
               StringEquals:
                 AWS:SourceArn: !Sub
                 - "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistributionId}"
-                - CloudFrontDistributionId: !ImportValue CloudFrontDownloadDistribution
+                - CloudFrontDistributionId: !ImportValue CloudFrontDownloadDistributionId
 
   CryptographyLayer:
     Type: AWS::Lambda::LayerVersion
