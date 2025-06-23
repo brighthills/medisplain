@@ -30,7 +30,8 @@ export class UploadService {
             if (res?.filename && res?.metadata?.['upload-timestamp']) {
               this.fileStore.addFile({
                 ...res,
-                createdAt: res?.['upload-timestamp'] ?? new Date().toISOString()
+                createdAt: res?.['upload-timestamp'] ?? new Date().toISOString(),
+                status:'processing'
               });
             }
             observer.next(res);

@@ -1,45 +1,45 @@
-// websocket.service.ts
 import { Injectable } from '@angular/core';
 import { environment } from '../../enviroments/env';
+import { Subject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WebSocketService {
   private socket: WebSocket | null = null;
+  private messageSubject = new Subject<any>();
 
-  constructor() { }
+  constructor() {}
 
-  // Connect to the WebSocket after successful login
   connect(token: string): void {
     const email = encodeURIComponent(localStorage.getItem('email') ?? '');
     const socketUrl = `${environment.api.webSocketBaseUrl}?email=${email}`;
-
     this.socket = new WebSocket(socketUrl);
 
-    // Send the access token once connected
     this.socket.onopen = () => {
       console.log('WebSocket connected');
       this.socket?.send(JSON.stringify({ action: 'authenticate', token }));
     };
 
-    // Handle incoming messages
     this.socket.onmessage = (event) => {
-      console.log('Received message:', event.data);
+      const data = JSON.parse(event.data);
+      this.messageSubject.next(data); // 🔥 üzenet továbbítása
     };
 
-    // Handle WebSocket close
     this.socket.onclose = () => {
       console.log('WebSocket disconnected');
     };
 
-    // Handle WebSocket errors
     this.socket.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
   }
 
-  // Disconnect WebSocket when logging out
+  // Observable stream
+  get messages$(): Observable<any> {
+    return this.messageSubject.asObservable();
+  }
+
   disconnect(): void {
     if (this.socket) {
       this.socket.close();
