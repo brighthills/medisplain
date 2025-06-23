@@ -83,7 +83,7 @@ Resources:
       DeadLetterConfig:
         TargetArn: !ImportValue FileToAnalyzeDeadLetterQueueArn
 
-  FileUploadQueueEventSourceMapping:
+  FileToAnalyzeQueueEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
       BatchSize: 1
