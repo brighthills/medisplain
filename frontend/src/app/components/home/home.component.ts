@@ -3,6 +3,7 @@ import { UploadService } from '../../services/upload.service';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { RouterModule } from '@angular/router';
+import { LoadingService } from '../../services/loading.service';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,7 @@ export class HomeComponent {
   selectedFile: File | null = null;
   message: string = '';
 
-  constructor(private uploadService: UploadService,
+  constructor(private loadingService:LoadingService,private uploadService: UploadService,
     private authService: AuthService
   ) {}
 
@@ -30,7 +31,8 @@ export class HomeComponent {
   uploadFile(): void {
     if (!this.selectedFile) return;
 
-    this.uploadService.uploadPdf(this.selectedFile).subscribe({
+    this.uploadService.uploadPdf(this.selectedFile).subscribe(
+      {
       next: (res: any) => {
         console.log('✅ Upload successful:', res);
         this.message = 'Upload successful!';
