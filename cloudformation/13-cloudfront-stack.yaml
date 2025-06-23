@@ -7,6 +7,8 @@ Parameters:
   Project:
     Type: String
     Default: bagalyze
+  KeyGroupId:
+    Type: String
 
 Resources:
   CloudFrontDownloadOAC:
@@ -31,7 +33,7 @@ Resources:
               - "${UploadBucket}.s3.${AWS::Region}.amazonaws.com"
               - UploadBucket: !ImportValue FileUploadBucket
             OriginAccessControlId: !Ref CloudFrontDownloadOAC
-            S3OriginConfig: { }  # Must be included but stays empty when using OAC
+            S3OriginConfig: { }
         DefaultCacheBehavior:
           TargetOriginId: S3Origin
           ViewerProtocolPolicy: redirect-to-https
@@ -41,7 +43,8 @@ Resources:
             QueryString: true
             Cookies:
               Forward: none
-          TrustedKeyGroups: [ ]  # You'll use CloudFront key pairs for signing instead
+          TrustedKeyGroups:
+            - !Ref KeyGroupId
         ViewerCertificate:
           CloudFrontDefaultCertificate: true
         PriceClass: PriceClass_100
@@ -57,3 +60,7 @@ Outputs:
     Value: !Ref CloudFrontDownloadDistribution
     Export:
       Name: CloudFrontDownloadDistribution
+  CloudFrontDownloadDistributionId:
+    Value: !GetAtt CloudFrontDownloadDistribution.Id
+    Export:
+      Name: CloudFrontDownloadDistributionId
