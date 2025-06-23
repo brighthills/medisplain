@@ -1,7 +1,7 @@
 <aside class="sidebar">
   <div class="logo-section">
     <div class="logo">🧬</div>
-    <div class="app-name">MedSplain</div>
+    <a class="app-name" routerLink="/home">MedSplain</a>
   </div>
 
   <div class="user-section">
@@ -15,17 +15,10 @@
   <button class="upload-btn">⬆ Upload Report</button>
 
   <nav class="nav-links">
-   <!--  <a routerLink="/dashboard" routerLinkActive="active">
-      <span class="icon">🏠</span> Dashboard
-    </a> -->
-    <a routerLink="/reports" routerLinkActive="active">
+    <a routerLink="/home" routerLinkActive="active">
       <span class="icon">📄</span> My Reports
     </a>
-<!--     <a routerLink="/notifications" routerLinkActive="active">
-      <span class="icon">🔔</span> Notifications
-    </a>
-    <a routerLink="/settings" routerLinkActive="active">
-      <span class="icon">⚙️</span> Settings
-    </a> -->
   </nav>
+
+  <button class="logout-btn" (click)="logout()">🚪 Logout</button>
 </aside>

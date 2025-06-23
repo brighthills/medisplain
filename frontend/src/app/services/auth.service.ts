@@ -23,11 +23,11 @@ export class AuthService {
 
 
   logout(): void {
-    // Clear local storage
-    localStorage.removeItem('accessToken');
-
-    // Redirect to Cognito logout
-    const logoutUrl = `${environment.cognito.domain}/logout?client_id=${environment.cognito.clientId}&logout_uri=${environment.cognito.redirectUri}`;
+    localStorage.clear();
+    const logoutUrl = `${environment.cognito.domain}/logout` +
+      `?client_id=${environment.cognito.clientId}` +
+      `&logout_uri=http://localhost:4200/logout`; // vagy ami tényleg be van állítva
     window.location.href = logoutUrl;
   }
+
 }
