@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { LoadingService } from '../../services/loading.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { FileListComponent } from '../file-list/file-list.component';
+import { ToastService } from '../../services/toast.service';
 
 
 
@@ -23,8 +24,10 @@ export class HomeComponent {
   message: string = '';
   files = [];
 
-  constructor(private uploadService: UploadService,
+  constructor(
+    private uploadService: UploadService,
     private authService: AuthService,
+    private toastService: ToastService,
   ) { }
 
   onFileSelected(event: Event): void {
@@ -42,11 +45,12 @@ export class HomeComponent {
       {
         next: (res: any) => {
           console.log('✅ Upload successful:', res);
-          this.message = 'Upload successful!';
+          this.toastService.show('File uploaded successfully!');
         },
         error: (err: any) => {
           console.error('❌ Upload error:', err);
-          this.message = 'Upload error!';
+          this.toastService.show('Upload failed. Please try again.', 'error');
+
         },
       });
   }

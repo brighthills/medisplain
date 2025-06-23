@@ -1,17 +1,46 @@
 import { Component } from '@angular/core';
+import { UploadService } from '../../services/upload.service';
 import { AuthService } from '../../services/auth.service';
-import { RouterModule } from '@angular/router';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss'
+  styleUrls: ['./sidebar.component.scss'],
 })
 export class SidebarComponent {
-  constructor(private authService: AuthService) {}
- logout(): void {
+  uploadSuccessMessage = '';
+
+  constructor(
+    private uploadService: UploadService,
+    private authService: AuthService,
+    private toastService: ToastService
+  ) { }
+
+  uploadFile(): void {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/pdf';
+
+    input.onchange = () => {
+      const file = input.files?.[0];
+      if (file) {
+        this.uploadService.uploadPdf(file).subscribe({
+          next: () => {
+            this.toastService.show('✅ File uploaded successfully');
+          },
+          error: () => {
+            this.toastService.show('❌ Upload failed. Please try again', 'error');
+          },
+        });
+      }
+    };
+
+    input.click();
+  }
+
+  logout(): void {
     this.authService.logout();
   }
 }
