@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FileStoreService } from '../../services/file-store.service';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-files',
@@ -21,7 +22,9 @@ export class FileListComponent implements OnInit, OnDestroy {
   constructor(
     private api: ApiService,
     private fileStore: FileStoreService,
-    private ws: WebSocketService
+    private ws: WebSocketService,
+    private router: Router,
+
   ) { }
 
   ngOnInit(): void {
@@ -79,6 +82,10 @@ export class FileListComponent implements OnInit, OnDestroy {
         console.error('❌ Failed to get signed URL:', err);
       }
     });
+  }
+
+  fileDetail(filename: string): void {
+    this.router.navigate(['/file', filename]);
   }
 
   ngOnDestroy(): void {

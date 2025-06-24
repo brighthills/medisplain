@@ -9,7 +9,7 @@ import { FileListComponent } from '../file-list/file-list.component';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, SidebarComponent, FileListComponent],
+  imports: [CommonModule, RouterModule, FileListComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })

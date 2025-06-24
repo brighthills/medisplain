@@ -1,25 +1,48 @@
-<ng-container *ngIf="files.length > 0; else noFiles">
-  <div class="report-item" *ngFor="let file of files">
-    <div class="report-info">
-      <h3 class="report-name">{{ file.filename }}</h3>
-      <p class="report-meta">
-        Uploaded on {{ file.createdAt | date : "medium" }}
-      </p>
+<div class="file-list-container">
+  <header class="page-header">
+    <div class="header-text">
+      <h1 class="page-title">Uploaded Reports</h1>
+      <p class="meta">Browse your uploaded medical documents</p>
     </div>
-    <div class="report-action">
-      <ng-container *ngIf="file.status === 'done'">
-        <button class="btn" (click)="fileDownload(file.filename)">⬇ Download</button>
-      </ng-container>
-      <ng-container *ngIf="file.status === 'processing'">
-        <span class="spinner"></span>
-      </ng-container>
+  </header>
+  <ng-container *ngIf="files.length > 0; else noFiles">
+    <div class="report-item" *ngFor="let file of files">
+      <div class="report-info">
+        <h3 class="report-name">
+          <ng-container *ngIf="file.status === 'done'; else plainFilename">
+            <span
+              class="clickable-filename"
+              (click)="fileDetail(file.filename)"
+            >
+              {{ file.filename }}
+            </span>
+          </ng-container>
+          <ng-template #plainFilename>
+            {{ file.filename }}
+          </ng-template>
+        </h3>
+        <p class="report-meta">
+          Uploaded on {{ file.createdAt | date : "medium" }}
+        </p>
+      </div>
+      <div class="report-action">
+        <ng-container *ngIf="file.status === 'done'">
+          <button class="btn" (click)="fileDownload(file.filename)">
+            ⬇ Download
+          </button>
+        </ng-container>
+        <ng-container *ngIf="file.status === 'processing'">
+          <span class="spinner"></span>
+        </ng-container>
+      </div>
     </div>
-  </div>
-</ng-container>
+  </ng-container>
 
-<ng-template #noFiles>
-  <div class="no-files">
-    <p>No uploaded documents found.</p>
-  </div>
-</ng-template>
-<span class="spinner"></span>
+  <ng-template #noFiles>
+    <div class="no-files">
+      <p>No uploaded documents found.</p>
+    </div>
+  </ng-template>
+
+  <span class="spinner"></span>
+</div>

@@ -29,13 +29,18 @@ export const routes: Routes = [
   {
     path: 'user-meta',
     canActivate: [authGuard],
-      loadComponent: () =>
+    loadComponent: () =>
       import('./components/user-meta/user-meta.component').then((m) => m.UserMetaComponent),
   },
-    {
+  {
     path: 'logout',
     canActivate: [authGuard],
     loadComponent: homeLoader,
   },
+  {
+    path: 'file/:filename',
+    loadComponent: () => import('./components/file-detail/file-detail.component').then(m => m.FileDetailComponent),
+    canActivate: [authGuard]
+  }
 
 ];
