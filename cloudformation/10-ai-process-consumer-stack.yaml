@@ -13,6 +13,12 @@ Parameters:
   DynamoMetadataTableName:
     Type: String
     Default: user-file-metadata
+  ParametersAndSecretsExtensionPort:
+    Type: String
+    Default: 2773
+  SecretsManagerTTL:
+    Type: String
+    Default: 120
 
 Resources:
   FileAIProcessConsumerRole:
@@ -76,9 +82,14 @@ Resources:
       Code:
         S3Bucket: !ImportValue LambdaCodeBucket
         S3Key: !Ref FunctionAIProcessConsumerName
+      Layers:
+        - arn:aws:lambda:eu-central-1:187925254637:layer:AWS-Parameters-and-Secrets-Lambda-Extension:17
       Environment:
         Variables:
           TABLE_NAME: !Ref DynamoMetadataTableName
+          PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: !Ref ParametersAndSecretsExtensionPort
+          OPENAI_API_KEY_SECRET_ARN: !Ref OpenAIApiKeySecretRef
+          SECRETS_MANAGER_TTL: !Ref SecretsManagerTTL
       # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
       DeadLetterConfig:
         TargetArn: !ImportValue FileToAnalyzeDeadLetterQueueArn
@@ -90,6 +101,30 @@ Resources:
       EventSourceArn: !ImportValue FileToAnalyzeQueueArn
       FunctionName: !Ref FileAIProcessConsumerFunction
       Enabled: true
+
+  PyPDFLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: pypdf
+      Description: Layer with pypdf2 library that extract text from pdf file
+      Content:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: layers/pypdf-layer.zip
+      CompatibleRuntimes:
+        - python3.11
+      LicenseInfo: "MIT" 
+  
+  OpenAILayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: openai
+      Description: Layer with openai library
+      Content:
+        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Key: layers/openai-layer.zip
+      CompatibleRuntimes:
+        - python3.11
+      LicenseInfo: "MIT" 
 
 Outputs:
   FileAIProcessConsumerFunction:
