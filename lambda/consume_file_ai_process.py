@@ -3,6 +3,10 @@ import json
 import os
 import logging
 from datetime import datetime, timezone
+import io
+from PyPDF2 import PdfReader
+import urllib3
+import openai
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -11,6 +15,10 @@ s3 = boto3.client('s3')
 dynamodb = boto3.client('dynamodb')
 
 TABLE_NAME = os.environ.get('TABLE_NAME', 'user-file-metadata')
+port = os.environ['PARAMETERS_SECRETS_EXTENSION_HTTP_PORT']
+aws_session_token = os.environ['AWS_SESSION_TOKEN']
+secret_arn = os.environ['OPENAI_API_KEY_SECRET_ARN']
+http = urllib3.PoolManager()
 
 def handler(event, context):
     for record in event["Records"]:
@@ -37,11 +45,10 @@ def handler(event, context):
             logger.info(f"⬇Downloading S3 object from bucket: {bucket}, key: {key}")
             s3.get_object(Bucket=bucket, Key=key)
             logger.info(f"Successfully downloaded {s3_location}")
+            response = s3.get_object(Bucket=bucket, Key='key')
 
-#  -----------------------
-#   ToDo:
-#       some processing towards AI suppose to be implemented here
-#  -----------------------
+            extracted_text = extract_text(response)
+            ai_summary = analyze_medical_record(extracted_text)
 
             # Update DynamoDB item to mark as processed
             now_iso = datetime.now(timezone.utc).isoformat()
@@ -51,11 +58,12 @@ def handler(event, context):
                     'PK': {'S': pk},
                     'SK': {'S': sk}
                 },
-                UpdateExpression="SET #status = :done, updatedAt = :updated",
+                UpdateExpression="SET #status = :done, updatedAt = :updated, aiSummary = :aiSummary",
                 ExpressionAttributeNames={"#status": "status"},
                 ExpressionAttributeValues={
                     ":done": {"S": "done"},
-                    ":updated": {"S": now_iso}
+                    ":updated": {"S": now_iso},
+                    ":aiSummary": {"S": ai_summary}
                 }
             )
 
@@ -64,3 +72,35 @@ def handler(event, context):
         except Exception as e:
             logger.error(f"Error processing record: {str(e)}")
             raise e  # To allow retry or DLQ fallback
+        
+def retrieve_extension_value(url): 
+    url = ('http://localhost:' + port + url)
+    headers = { "X-Aws-Parameters-Secrets-Token": aws_session_token }
+    response = http.request("GET", url, headers=headers)
+    response = json.loads(response.data)   
+    return response
+
+def get_secret():
+    secrets_url = ('/secretsmanager/get?secretId=' + secret_arn)
+    secret_string = json.loads(retrieve_extension_value(secrets_url)['SecretString'])
+    return secret_string
+
+def extract_text(pdf_file):
+    pdf_reader = PdfReader(io.BytesIO(pdf_file['Body'].read()))
+    text = " ".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()])
+    return text
+
+def analyze_medical_record(text):
+    system_prompt="You are a helpful medical assistant. The answer should not contain any personal data. Return the response in JSON format using the following keys: short explanation, keyFindings, detailedExplanation, doctorRecommendation."
+    user_prompt="This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."
+
+    client = openai.OpenAI(api_key=get_secret())
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        temperature=0.5
+    )
+    return response.choices[0].message.content
