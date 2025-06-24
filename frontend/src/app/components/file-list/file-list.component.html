@@ -8,7 +8,7 @@
     </div>
     <div class="report-action">
       <ng-container *ngIf="file.status === 'done'">
-        <button class="btn">⬇ Download</button>
+        <button class="btn" (click)="fileDownload(file.filename)">⬇ Download</button>
       </ng-container>
       <ng-container *ngIf="file.status === 'processing'">
         <span class="spinner"></span>

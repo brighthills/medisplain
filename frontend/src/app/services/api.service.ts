@@ -7,11 +7,11 @@ import { catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class ApiService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private getAuthHeaders(): HttpHeaders {
     const token = localStorage.getItem('accessToken');
-    
+
     if (!token) {
       throw new Error('❌ Nincs access token');
     }
@@ -33,14 +33,40 @@ export class ApiService {
   }
 
   get<T>(url: string): Observable<T> {
-  const headers = this.getAuthHeaders();
+    const headers = this.getAuthHeaders();
 
-  return this.http.get<T>(url, { headers }).pipe(
-    catchError((error: HttpErrorResponse) => {
-      console.error('❌ API GET error:', error);
-      return throwError(() => error);
-    })
-  );
-}
+    return this.http.get<T>(url, { headers }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ API GET error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getSignedUrl(url: string): Observable<string> {
+    const headers = this.getAuthHeaders();
+
+    return this.http.get(url, {
+      headers,
+      responseType: 'text'  // FONTOS: ne JSON-nak kezelje
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ Signed URL GET error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  getBlob(url: string): Observable<Blob> {
+    return this.http.get(url, {
+      responseType: 'blob'  // Signed URL nem igényel header-t
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('❌ File blob GET error:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
 
 }

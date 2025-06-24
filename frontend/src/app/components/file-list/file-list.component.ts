@@ -22,9 +22,15 @@ export class FileListComponent implements OnInit, OnDestroy {
     private api: ApiService,
     private fileStore: FileStoreService,
     private ws: WebSocketService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
+    this.loadFiles();
+    this.subscribeToStore();
+    this.subscribeToWebSocket();
+  }
+
+  private loadFiles(): void {
     this.api.get<any[]>(environment.api.filesUrl).subscribe({
       next: (res) => {
         const sorted = res.sort((a, b) =>
@@ -38,11 +44,15 @@ export class FileListComponent implements OnInit, OnDestroy {
         console.error(err);
       }
     });
+  }
 
+  private subscribeToStore(): void {
     this.fileStore.files$.subscribe((updated) => {
       this.files = updated;
     });
+  }
 
+  private subscribeToWebSocket(): void {
     this.wsSub = this.ws.messages$.subscribe((message) => {
       if (message.status === 'done' && message.filename) {
         const index = this.files.findIndex(f => f.filename === message.filename);
@@ -50,6 +60,23 @@ export class FileListComponent implements OnInit, OnDestroy {
           this.files[index].status = 'done';
           this.fileStore.setFiles([...this.files]);
         }
+      }
+    });
+  }
+
+  fileDownload(filename: string): void {
+    const url = `${environment.api.fileUrl}?filename=${encodeURIComponent(filename)}`;
+
+    this.api.getSignedUrl(url).subscribe({
+      next: (signedUrl: string) => {
+        const a = document.createElement('a');
+        a.href = signedUrl;
+        a.download = filename; // ez csak akkor működik, ha Content-Disposition is be van állítva CloudFronton
+        a.target = '_blank';   // új fülön is nyitható, ha inkább megtekinteni akarod
+        a.click();
+      },
+      error: (err) => {
+        console.error('❌ Failed to get signed URL:', err);
       }
     });
   }
