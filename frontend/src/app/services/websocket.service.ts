@@ -23,7 +23,8 @@ export class WebSocketService {
 
     this.socket.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      this.messageSubject.next(data); // 🔥 üzenet továbbítása
+      this.messageSubject.next(data);
+      console.log('WebSocket received message:', data);
     };
 
     this.socket.onclose = () => {

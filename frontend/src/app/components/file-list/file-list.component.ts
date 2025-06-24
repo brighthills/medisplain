@@ -43,7 +43,6 @@ export class FileListComponent implements OnInit, OnDestroy {
       this.files = updated;
     });
 
-    // 🔁 Feliratkozás a központi WebSocket szolgáltatásra
     this.wsSub = this.ws.messages$.subscribe((message) => {
       if (message.status === 'done' && message.filename) {
         const index = this.files.findIndex(f => f.filename === message.filename);
