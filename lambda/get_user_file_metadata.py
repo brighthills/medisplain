@@ -45,6 +45,21 @@ def handler(event, context):
                 "body": json.dumps({"error": "File not found"})
             }
 
+        result = {
+            "filename": item["filename"]["S"],
+            "userEmail": item["userEmail"]["S"],
+            "userId": item["userId"]["S"],
+            "uploadTimestamp": item["uploadTimestamp"]["S"],
+            "createdAt": item["createdAt"]["S"],
+            "status": item["status"]["S"],
+        }
+
+        if "aiSummary" in item:
+            result["aiSummary"] = item["aiSummary"]["S"]
+
+        if "originalFilename" in item:
+            result["originalFilename"] = item["originalFilename"]["S"]
+
         return {
             "statusCode": 200,
             "headers": {
@@ -53,14 +68,7 @@ def handler(event, context):
                 "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 "Access-Control-Allow-Methods": "OPTIONS,GET"
             },
-            "body": json.dumps({
-                "filename": item["filename"]["S"],
-                "userEmail": item["userEmail"]["S"],
-                "userId": item["userId"]["S"],
-                "uploadTimestamp": item["uploadTimestamp"]["S"],
-                "createdAt": item["createdAt"]["S"],
-                "status": item["status"]["S"],
-            })
+            "body": json.dumps(result)
         }
 
     except Exception as e:

@@ -19,6 +19,8 @@ port = os.environ['PARAMETERS_SECRETS_EXTENSION_HTTP_PORT']
 aws_session_token = os.environ['AWS_SESSION_TOKEN']
 secret_arn = os.environ['OPENAI_API_KEY_SECRET_ARN']
 http = urllib3.PoolManager()
+system_prompt_parameter_name = os.environ['OPENAI_SYSTEM_PROMPT_PARAMETER_NAME']
+user_prompt_parameter_name = os.environ['OPENAI_USER_PROMPT_PARAMETER_NAME']
 
 def handler(event, context):
     for record in event["Records"]:
@@ -43,9 +45,8 @@ def handler(event, context):
 
             # Attempt to download the file
             logger.info(f"⬇Downloading S3 object from bucket: {bucket}, key: {key}")
-            s3.get_object(Bucket=bucket, Key=key)
+            response = s3.get_object(Bucket=bucket, Key=key)
             logger.info(f"Successfully downloaded {s3_location}")
-            response = s3.get_object(Bucket=bucket, Key='key')
 
             extracted_text = extract_text(response)
             ai_summary = analyze_medical_record(extracted_text)
@@ -82,8 +83,12 @@ def retrieve_extension_value(url):
 
 def get_secret():
     secrets_url = ('/secretsmanager/get?secretId=' + secret_arn)
-    secret_string = json.loads(retrieve_extension_value(secrets_url)['SecretString'])
-    return secret_string
+    return retrieve_extension_value(secrets_url)['SecretString']
+
+def get_parameter(parameter_name):
+    parameter_url = ('/systemsmanager/parameters/get?name=' + parameter_name)
+    parameter_string = retrieve_extension_value(parameter_url)['Parameter']['Value']
+    return parameter_string
 
 def extract_text(pdf_file):
     pdf_reader = PdfReader(io.BytesIO(pdf_file['Body'].read()))
@@ -91,16 +96,18 @@ def extract_text(pdf_file):
     return text
 
 def analyze_medical_record(text):
-    system_prompt="You are a helpful medical assistant. The answer should not contain any personal data. Return the response in JSON format using the following keys: short explanation, keyFindings, detailedExplanation, doctorRecommendation."
-    user_prompt="This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."
+    logger.info("Analyzing medical record")
 
     client = openai.OpenAI(api_key=get_secret())
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
+            {"role": "system", "content": get_parameter(system_prompt_parameter_name)},
+            {"role": "user", "content": "This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."}
         ],
         temperature=0.5
     )
-    return response.choices[0].message.content
+    logger.info("Successfully analized medical record")
+    raw_ai_summary = response.choices[0].message.content
+    cleaned_ai_summary = raw_ai_summary.strip('`').replace('json\n', '', 1).strip()
+    return cleaned_ai_summary
