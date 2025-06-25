@@ -11,6 +11,7 @@ export const environment = {
     filesUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/files',
     fileUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/download',
     userMetaUrl: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/user',
-    webSocketBaseUrl: 'wss://a9iwmgn508.execute-api.eu-central-1.amazonaws.com/dev/'
+    fileDetail: 'https://poyqoedorf.execute-api.eu-central-1.amazonaws.com/dev/file-meta',
+    webSocketBaseUrl: 'wss://a9iwmgn508.execute-api.eu-central-1.amazonaws.com/dev/',
   }
 };

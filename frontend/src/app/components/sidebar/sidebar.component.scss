@@ -151,3 +151,38 @@
     border-top: 1px solid #e5e7eb;
     margin: 0.75rem 0;
 }
+
+.avatar-shape {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #d1d5db; // világosszürke háttér
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px #e5e7eb;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background-color: #714ffc; // fej
+    border-radius: 50%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 18px;
+    background-color: #714ffc;
+    border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%; // természetesebb váll
+  }
+}
+
