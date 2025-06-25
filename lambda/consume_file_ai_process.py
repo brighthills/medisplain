@@ -109,6 +109,5 @@ def analyze_medical_record(text):
     )
     logger.info("Successfully analized medical record")
     raw_ai_summary = response.choices[0].message.content
-    clean_json_str = raw_ai_summary.strip('`').replace('json\n', '', 1).strip()
-    ai_summary = json.loads(clean_json_str)
-    return ai_summary
+    cleaned_ai_summary = raw_ai_summary.strip('`').replace('json\n', '', 1).strip()
+    return cleaned_ai_summary
