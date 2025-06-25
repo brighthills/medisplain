@@ -15,7 +15,7 @@ jobs:
       AWS_REGION: eu-central-1
       S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
       ZIP_FILE_NAME: consume-file-ai-process.zip
-      LAMBDA_FUNCTION_NAME: consume_file_ai_process-function-dev
+      LAMBDA_FUNCTION_NAME: consume-file-ai-process-function-dev
 
     steps:
       - name: Checkout code
