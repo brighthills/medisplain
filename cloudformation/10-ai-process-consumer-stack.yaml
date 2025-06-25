@@ -51,6 +51,12 @@ Resources:
                   - BucketName: !ImportValue FileUploadBucket
               - Effect: Allow
                 Action:
+                  - s3:ListBucket
+                Resource: !Sub
+                  - "arn:aws:s3:::${BucketName}"
+                  - BucketName: !ImportValue FileUploadBucket
+              - Effect: Allow
+                Action:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents

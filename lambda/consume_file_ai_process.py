@@ -81,8 +81,7 @@ def retrieve_extension_value(url):
 
 def get_secret():
     secrets_url = ('/secretsmanager/get?secretId=' + secret_arn)
-    secret_string = json.loads(retrieve_extension_value(secrets_url)['SecretString'])
-    return secret_string
+    return retrieve_extension_value(secrets_url)['SecretString']
 
 def extract_text(pdf_file):
     pdf_reader = PdfReader(io.BytesIO(pdf_file['Body'].read()))
