@@ -19,6 +19,8 @@ port = os.environ['PARAMETERS_SECRETS_EXTENSION_HTTP_PORT']
 aws_session_token = os.environ['AWS_SESSION_TOKEN']
 secret_arn = os.environ['OPENAI_API_KEY_SECRET_ARN']
 http = urllib3.PoolManager()
+system_prompt_parameter_name = os.environ['OPENAI_SYSTEM_PROMPT_PARAMETER_NAME']
+user_prompt_parameter_name = os.environ['OPENAI_USER_PROMPT_PARAMETER_NAME']
 
 def handler(event, context):
     for record in event["Records"]:
@@ -83,6 +85,11 @@ def get_secret():
     secrets_url = ('/secretsmanager/get?secretId=' + secret_arn)
     return retrieve_extension_value(secrets_url)['SecretString']
 
+def get_parameter(parameter_name):
+    parameter_url = ('/systemsmanager/parameters/get?name=' + parameter_name)
+    parameter_string = retrieve_extension_value(parameter_url)['Parameter']['Value']
+    return parameter_string
+
 def extract_text(pdf_file):
     pdf_reader = PdfReader(io.BytesIO(pdf_file['Body'].read()))
     text = " ".join([page.extract_text() for page in pdf_reader.pages if page.extract_text()])
@@ -90,15 +97,13 @@ def extract_text(pdf_file):
 
 def analyze_medical_record(text):
     logger.info("Analyzing medical record")
-    system_prompt="You are a helpful medical assistant. The answer should not contain any personal data. Return the response in JSON format using the following keys: short explanation, keyFindings, detailedExplanation, doctorRecommendation."
-    user_prompt="This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."
 
     client = openai.OpenAI(api_key=get_secret())
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
+            {"role": "system", "content": get_parameter(system_prompt_parameter_name)},
+            {"role": "user", "content": get_parameter(user_prompt_parameter_name)}
         ],
         temperature=0.5
     )

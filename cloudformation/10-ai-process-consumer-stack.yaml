@@ -107,6 +107,8 @@ Resources:
           PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: !Ref ParametersAndSecretsExtensionPort
           OPENAI_API_KEY_SECRET_ARN: !ImportValue  OpenAIApiKeySecretRef
           SECRETS_MANAGER_TTL: !Ref SecretsManagerTTL
+          OPENAI_SYSTEM_PROMPT_PARAMETER_NAME: !ImportValue OpenAISystemPromptName
+          OPENAI_USER_PROMPT_PARAMETER_NAME: !ImportValue OpenAIUserPromptName
       # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
       DeadLetterConfig:
         TargetArn: !ImportValue FileToAnalyzeDeadLetterQueueArn
