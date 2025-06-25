@@ -10,11 +10,11 @@
         <h3 class="report-name">
           <ng-container *ngIf="file.status === 'done'; else plainFilename">
             <span class="filename-link" (click)="fileDetail(file.filename)">
-              {{ file.filename }}
+              {{ file.originalFilename }}
             </span>
           </ng-container>
           <ng-template #plainFilename>
-            {{ file.filename }}
+            {{ file.originalFilename }}
           </ng-template>
         </h3>
         <p class="report-meta">

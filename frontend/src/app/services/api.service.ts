@@ -81,7 +81,7 @@ export class ApiService {
 
         const body = {
           file_base64: base64,
-          filename: file.name
+          original_filename: file.name
         };
 
         this.post(environment.api.uploadUrl, body, 'text/plain').subscribe({
@@ -89,6 +89,7 @@ export class ApiService {
             if (res?.filename && res?.metadata?.['upload-timestamp']) {
               this.fileStore.addFile({
                 ...res,
+                originalFilename: res.original_filename,
                 createdAt: res?.['upload-timestamp'] ?? new Date().toISOString(),
                 status: 'processing'
               });
