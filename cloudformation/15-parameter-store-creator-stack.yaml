@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create ParameterStore parameters
+
+Parameters:
+  SystemPromptParameterName:
+    Type: String
+    Default: /dev/medisplain/openai/system-prompt
+  SystemPromptParameterValue:
+    Type: String
+  UserPromptParameterName:
+    Type: String
+    Default: /dev/medisplain/openai/user-prompt
+  UserPromptParameterValue:
+    Type: String
+
+Resources:
+  OpenAISystemPrompt:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Ref SystemPromptParameterName
+      Type: String
+      Value: !Ref SystemPromptParameterValue
+      Description: SSM Parameter for OpenAI system prompt
+
+  OpenAIUserPrompt:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Ref UserPromptParameterName
+      Type: String
+      Value: !Ref UserPromptParameterValue
+      Description: SSM Parameter for OpenAI user prompt
+
+Outputs:
+  OpenAISystemPromptName:
+    Value: !GetAtt OpenAISystemPrompt.Name
+    Export:
+      Name: OpenAISystemPromptName
+  OpenAIUserPromptName:
+    Value: !GetAtt OpenAIUserPrompt.Name
+    Export:
+      Name: OpenAIUserPromptName
