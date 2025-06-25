@@ -22,7 +22,7 @@ export class UploadService {
 
         const body = {
           file_base64: base64,
-          filename: file.name // opcionális, ha a backend elfogadja
+          filename: file.name
         };
 
         this.api.post(environment.api.uploadUrl, body, 'text/plain').subscribe({
