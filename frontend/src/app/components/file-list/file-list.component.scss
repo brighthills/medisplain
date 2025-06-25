@@ -99,3 +99,20 @@ header {
   padding-right: 40px;
   padding-left: 40px;
 }
+
+.filename-link {
+  color: #4f46e5; // indigo-600
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #3730a3; // indigo-800
+    text-decoration: underline;
+  }
+
+  &:active {
+    color: #312e81;
+  }
+}
+
