@@ -68,23 +68,6 @@
         margin-bottom: 1.5rem;
     }
 
-    .upload-btn {
-        background-color: #714ffc;
-        color: #ffffff;
-        font-weight: 600;
-        border: none;
-        border-radius: 0.5rem;
-        padding: 0.75rem;
-        text-align: center;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-        margin-bottom: 0.5rem;
-
-        &:hover {
-            background-color: #5a3dca;
-        }
-    }
-
     .nav-links {
         display: flex;
         flex-direction: column;
@@ -126,23 +109,6 @@
         border-top: 1px solid #e5e7eb;
         display: flex;
         justify-content: center;
-    }
-
-    .logout-btn {
-        background-color: #e5e7eb;
-        color: #111827;
-        font-weight: 600;
-        font-size: 0.875rem;
-        border: none;
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        cursor: pointer;
-        width: 100%;
-        transition: background-color 0.3s ease;
-
-        &:hover {
-            background-color: #d1d5db;
-        }
     }
 
     .logo-card {
