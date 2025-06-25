@@ -21,6 +21,8 @@ export class FileDetailComponent implements OnInit {
     doctorRecommendation: ''
   };
 
+  createdAt: string = '';
+
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private http = inject(HttpClient);
@@ -42,7 +44,7 @@ export class FileDetailComponent implements OnInit {
           const parsed: AISummary = typeof data.aiSummary === 'string'
             ? JSON.parse(data.aiSummary)
             : data.aiSummary;
-
+          this.createdAt = data.createdAt;
           this.summary = {
             shortExplanation: parsed.shortExplanation ?? '',
             keyFindings: parsed.keyFindings ?? '',
