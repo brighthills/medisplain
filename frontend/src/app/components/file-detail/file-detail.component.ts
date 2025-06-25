@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../enviroments/env';
 import { PageHeaderComponent } from '../page-header/page-header.component';
+import { AISummary, FileMetadata } from '../../interfaces';
 
 @Component({
   standalone: true,
@@ -13,10 +14,12 @@ import { PageHeaderComponent } from '../page-header/page-header.component';
   imports: [CommonModule, PageHeaderComponent]
 })
 export class FileDetailComponent implements OnInit {
-  shortExplanation = '';
-  keyFindings = '';
-  detailedExplanation = '';
-  doctorRecommendation = '';
+  summary: AISummary = {
+    shortExplanation: '',
+    keyFindings: '',
+    detailedExplanation: '',
+    doctorRecommendation: ''
+  };
 
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -33,15 +36,25 @@ export class FileDetailComponent implements OnInit {
 
     const url = `${environment.api.fileDetail}?filename=${encodeURIComponent(filename)}`;
 
-    this.http.get<any>(url, { headers }).subscribe({
+    this.http.get<FileMetadata>(url, { headers }).subscribe({
       next: (data) => {
-        this.shortExplanation = data.shortExplanation;
-        this.keyFindings = data.keyFindings;
-        this.detailedExplanation = data.detailedExplanation;
-        this.doctorRecommendation = data.doctorRecommendation;
+        try {
+          const parsed: AISummary = typeof data.aiSummary === 'string'
+            ? JSON.parse(data.aiSummary)
+            : data.aiSummary;
+
+          this.summary = {
+            shortExplanation: parsed.shortExplanation ?? '',
+            keyFindings: parsed.keyFindings ?? '',
+            detailedExplanation: parsed.detailedExplanation ?? '',
+            doctorRecommendation: parsed.doctorRecommendation ?? ''
+          };
+        } catch (err) {
+          console.error('❌ Failed to parse aiSummary:', err);
+        }
       },
       error: (err) => {
-        console.error('❌ Failed to fetch file meta:', err);
+        console.error('❌ Failed to fetch file metadata:', err);
       }
     });
   }
