@@ -39,6 +39,7 @@ def handler(event, context):
                 user_email = metadata.get("user-email")
                 user_id = metadata.get("user-id")
                 upload_timestamp = metadata.get("upload-timestamp")
+                original_filename = metadata.get("original-filename")
                 createdAt = datetime.now(timezone.utc).isoformat()
 
                 # Determine file type based on extension
@@ -62,7 +63,8 @@ def handler(event, context):
                     'uploadTimestamp': {'S': upload_timestamp},
                     'createdAt': {'S': createdAt},
                     'status': {'S': STATUS},
-                    's3Location': {'S': s3_location}
+                    's3Location': {'S': s3_location},
+                    'originalFilename': {'S': original_filename}
                 }
 
                 # Store metadata in DynamoDB
