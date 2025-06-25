@@ -103,9 +103,12 @@ def analyze_medical_record(text):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": get_parameter(system_prompt_parameter_name)},
-            {"role": "user", "content": get_parameter(user_prompt_parameter_name)}
+            {"role": "user", "content": "This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."}
         ],
         temperature=0.5
     )
     logger.info("Successfully analized medical record")
-    return response.choices[0].message.content
+    raw_ai_summary = response.choices[0].message.content
+    clean_json_str = raw_ai_summary.strip('`').replace('json\n', '', 1).strip()
+    ai_summary = json.loads(clean_json_str)
+    return ai_summary
