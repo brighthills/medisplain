@@ -2,6 +2,8 @@ AWSTemplateFormatVersion: '2010-09-09'
 Description: Create ACM certificate for medisplain.brighthills.cloud
 
 Parameters:
+  Environment:
+    Type: String
   DomainName:
     Type: String
     Default: medisplain.brighthills.cloud
