@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create ACM certificate for medisplain.brighthills.cloud
+
+Parameters:
+  DomainName:
+    Type: String
+    Default: medisplain.brighthills.cloud
+  HostedZoneId:
+    Type: String
+    Description: "Hosted Zone ID for brighthills.cloud"
+    Default: Z003209932MEVPLFYJGBR
+
+Resources:
+  SSLCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref DomainName
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref DomainName
+          HostedZoneId: !Ref HostedZoneId
+      Tags:
+        - Key: Name
+          Value: !Ref DomainName
+
+Outputs:
+  CertificateArn:
+    Description: ACM Certificate ARN
+    Value: !Ref SSLCertificate
+    Export:
+      Name: MedisplainCertificateArn
