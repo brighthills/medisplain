@@ -3,6 +3,7 @@ import { UploadService } from '../../services/upload.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { RouterModule } from '@angular/router';
+import { UserService } from '../../services/user.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -13,15 +14,19 @@ import { RouterModule } from '@angular/router';
 })
 export class SidebarComponent implements OnInit {
   uploadSuccessMessage = '';
-  email = localStorage.getItem('email') || '';
+  email = ''
 
   constructor(
     private uploadService: UploadService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private userService: UserService
   ) {
   }
   ngOnInit(): void {
+    this.userService.email$.subscribe(email => {
+      this.email = email;
+    });
   }
 
   uploadFile(): void {
