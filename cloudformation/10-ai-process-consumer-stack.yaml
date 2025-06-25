@@ -71,15 +71,20 @@ Resources:
                 Action:
                   - sqs:sendMessage
                 Resource: !ImportValue FileToAnalyzeDeadLetterQueueArn
-                # ToDo: access to Lambda function should be granted to allow certain actions to be done on AI service/tool
-                #   - Effect: Allow
-                #     Action:
-                #       <actions-enlisted-to-allow-on-ai-tool>
-                #     Resource: <resource-arn-of-the-ai-service>
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: !ImportValue OpenAIApiKeySecretRef
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - Fn::Sub:
+                      - "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAISystemPromptName}"
+                      - OpenAISystemPromptName: !ImportValue  OpenAISystemPromptName
+                  - Fn::Sub:
+                      - "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAIUserPromptName}"
+                      - OpenAIUserPromptName: !ImportValue  OpenAIUserPromptName
 
   FileAIProcessConsumerFunction:
     Type: AWS::Lambda::Function

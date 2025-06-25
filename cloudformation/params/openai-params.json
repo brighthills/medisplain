@@ -1,0 +1,10 @@
+[
+    {
+        "ParameterKey" : "SystemPromptParameterValue",
+        "ParameterValue" : "You are a helpful medical assistant. The answer should not contain any personal data. Return the response in JSON format using the following keys: shortExplanation, keyFindings, detailedExplanation, doctorRecommendation."
+    },
+    {
+        "ParameterKey" : "UserPromptParameterValue",
+        "ParameterValue" : "This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."
+    }
+]
