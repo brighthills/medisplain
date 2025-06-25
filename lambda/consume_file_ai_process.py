@@ -43,9 +43,8 @@ def handler(event, context):
 
             # Attempt to download the file
             logger.info(f"⬇Downloading S3 object from bucket: {bucket}, key: {key}")
-            s3.get_object(Bucket=bucket, Key=key)
+            response = s3.get_object(Bucket=bucket, Key=key)
             logger.info(f"Successfully downloaded {s3_location}")
-            response = s3.get_object(Bucket=bucket, Key='key')
 
             extracted_text = extract_text(response)
             ai_summary = analyze_medical_record(extracted_text)
@@ -91,6 +90,7 @@ def extract_text(pdf_file):
     return text
 
 def analyze_medical_record(text):
+    logger.info("Analyzing medical record")
     system_prompt="You are a helpful medical assistant. The answer should not contain any personal data. Return the response in JSON format using the following keys: short explanation, keyFindings, detailedExplanation, doctorRecommendation."
     user_prompt="This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."
 
@@ -103,4 +103,5 @@ def analyze_medical_record(text):
         ],
         temperature=0.5
     )
+    logger.info("Successfully analized medical record")
     return response.choices[0].message.content

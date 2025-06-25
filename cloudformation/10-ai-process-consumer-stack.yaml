@@ -84,11 +84,13 @@ Resources:
         S3Key: !Ref FunctionAIProcessConsumerName
       Layers:
         - arn:aws:lambda:eu-central-1:187925254637:layer:AWS-Parameters-and-Secrets-Lambda-Extension:17
+        - !Ref PyPDFLayer
+        - !Ref OpenAILayer
       Environment:
         Variables:
           TABLE_NAME: !Ref DynamoMetadataTableName
           PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: !Ref ParametersAndSecretsExtensionPort
-          OPENAI_API_KEY_SECRET_ARN: !Ref OpenAIApiKeySecretRef
+          OPENAI_API_KEY_SECRET_ARN: !ImportValue  OpenAIApiKeySecretRef
           SECRETS_MANAGER_TTL: !Ref SecretsManagerTTL
       # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
       DeadLetterConfig:
