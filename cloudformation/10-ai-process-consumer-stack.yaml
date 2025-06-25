@@ -76,6 +76,10 @@ Resources:
                 #     Action:
                 #       <actions-enlisted-to-allow-on-ai-tool>
                 #     Resource: <resource-arn-of-the-ai-service>
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource: !ImportValue OpenAIApiKeySecretRef
 
   FileAIProcessConsumerFunction:
     Type: AWS::Lambda::Function
