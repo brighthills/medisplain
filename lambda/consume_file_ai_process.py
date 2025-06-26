@@ -105,9 +105,46 @@ def analyze_medical_record(text):
             {"role": "system", "content": get_parameter(system_prompt_parameter_name)},
             {"role": "user", "content": get_parameter(user_prompt_parameter_name).format(text=text)}
         ],
-        temperature=0.5
+        temperature=0.5,
+        response_format={
+            "type": "json_schema",
+            "json_schema": ai_summary_response_schema
+        }
     )
     logger.info("Successfully analized medical record")
-    raw_ai_summary = response.choices[0].message.content
-    cleaned_ai_summary = raw_ai_summary.strip('`').replace('json\n', '', 1).strip()
-    return cleaned_ai_summary
+    return response.choices[0].message.content
+
+ai_summary_response_schema = {
+    "name": "medical_response",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "success": {"type": "boolean"},
+            "resultMessage": {"type": ["string", "null"]},
+            "detailedResult": {
+                "anyOf": [
+                    {"type": "null"},
+                    {
+                        "type": "object",
+                        "properties": {
+                            "shortExplanation": {"type": "string", "minLength": 1},
+                            "keyFindings": {"type": "string", "minLength": 1},
+                            "detailedExplanation": {"type": "string", "minLength": 1},
+                            "doctorRecommendation": {"type": "string", "minLength": 1},
+                        },
+                        "required": [
+                            "shortExplanation",
+                            "keyFindings",
+                            "detailedExplanation",
+                            "doctorRecommendation",
+                        ],
+                        "additionalProperties": False,
+                    },
+                ]
+            },
+        },
+        "required": ["success", "resultMessage", "detailedResult"],
+        "additionalProperties": False,
+    },
+    "strict": True,
+}
