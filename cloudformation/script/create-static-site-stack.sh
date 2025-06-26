@@ -1,6 +1,6 @@
 #!/bin/bash
 
-aws cloudformation update-stack \
+aws cloudformation create-stack \
   --stack-name medisplain-static-site \
   --template-body file://18-static-site-stack.yaml \
   --profile bh-us \
