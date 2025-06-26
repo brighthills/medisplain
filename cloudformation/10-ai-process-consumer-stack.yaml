@@ -93,7 +93,7 @@ Resources:
       Handler: consume_file_ai_process.handler
       Role: !GetAtt FileAIProcessConsumerRole.Arn
       Runtime: python3.11
-      Timeout: 15
+      Timeout: 60
       Code:
         S3Bucket: !ImportValue LambdaCodeBucket
         S3Key: !Ref FunctionAIProcessConsumerName
