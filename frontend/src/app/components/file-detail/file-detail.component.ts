@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { environment } from '../../../enviroments/env';
 import { PageHeaderComponent } from '../page-header/page-header.component';
-import { AISummary, FileMetadata } from '../../interfaces';
+import { AISummary, AISummaryResponse, FileMetadata } from '../../interfaces';
 
 @Component({
   standalone: true,
@@ -19,7 +19,7 @@ export class FileDetailComponent implements OnInit {
     keyFindings: '',
     detailedExplanation: '',
     doctorRecommendation: ''
-  };
+  }
 
   createdAt: string = '';
 
@@ -36,20 +36,29 @@ export class FileDetailComponent implements OnInit {
       Authorization: `Bearer ${token}`
     });
 
-    const url = `${environment.api.fileDetail}?filename=${encodeURIComponent(filename+'.pdf')}`;
+    const url = `${environment.api.fileDetail}?filename=${encodeURIComponent(filename + '.pdf')}`;
 
     this.http.get<FileMetadata>(url, { headers }).subscribe({
       next: (data) => {
         try {
-          const parsed: AISummary = typeof data.aiSummary === 'string'
+          const parsed: AISummaryResponse = typeof data.aiSummary === 'string'
             ? JSON.parse(data.aiSummary)
             : data.aiSummary;
+
+          const {
+            shortExplanation = '',
+            keyFindings = '',
+            detailedExplanation = '',
+            doctorRecommendation = ''
+          } = parsed.detailedResult;
+
           this.createdAt = data.createdAt;
+
           this.summary = {
-            shortExplanation: parsed.shortExplanation ?? '',
-            keyFindings: parsed.keyFindings ?? '',
-            detailedExplanation: parsed.detailedExplanation ?? '',
-            doctorRecommendation: parsed.doctorRecommendation ?? ''
+            shortExplanation,
+            keyFindings,
+            detailedExplanation,
+            doctorRecommendation
           };
         } catch (err) {
           console.error('❌ Failed to parse aiSummary:', err);
