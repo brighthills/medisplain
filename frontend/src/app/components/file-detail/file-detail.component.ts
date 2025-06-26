@@ -28,7 +28,7 @@ export class FileDetailComponent implements OnInit {
   private http = inject(HttpClient);
 
   ngOnInit(): void {
-    const filename = this.route.snapshot.paramMap.get('filename');
+    const filename = this.route.snapshot.paramMap.get('id');
     if (!filename) return;
 
     const token = localStorage.getItem('accessToken');
@@ -36,7 +36,7 @@ export class FileDetailComponent implements OnInit {
       Authorization: `Bearer ${token}`
     });
 
-    const url = `${environment.api.fileDetail}?filename=${encodeURIComponent(filename)}`;
+    const url = `${environment.api.fileDetail}?filename=${encodeURIComponent(filename+'.pdf')}`;
 
     this.http.get<FileMetadata>(url, { headers }).subscribe({
       next: (data) => {
