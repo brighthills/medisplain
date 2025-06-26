@@ -16,6 +16,8 @@ Parameters:
   DynamoMetadataTableName:
     Type: String
     Default: user-file-metadata
+  Origin:
+    Type: String
 
 Resources:
 #---Cognito
@@ -72,9 +74,9 @@ Resources:
       SupportedIdentityProviders:
         - COGNITO
       CallbackURLs:
-        - https://medisplain.brighthills.cloud/callback
+        - !Sub ${Origin}/callback
       LogoutURLs:
-        - https://medisplain.brighthills.cloud/logout
+        - !Sub ${Origin}/logout
       AllowedOAuthFlows:
         - code
       AllowedOAuthScopes:
@@ -112,6 +114,7 @@ Resources:
           BUCKET_NAME:
             Fn::ImportValue:
               Fn::Sub: FileUploadBucket${Environment}
+          ORIGIN: !Ref Origin
 
   LambdaApiPermission:
     Type: AWS::Lambda::Permission
@@ -265,7 +268,10 @@ Resources:
           - StatusCode: 200
             ResponseParameters:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Origin: "'https://medisplain.brighthills.cloud'"
+              method.response.header.Access-Control-Allow-Origin:
+                Fn::Sub:
+                  - "'${Origin}'"
+                  - Origin: !Ref Origin
               method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
               method.response.header.Access-Control-Allow-Credentials: "'true'"
             ResponseTemplates:
@@ -286,7 +292,10 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ResponseType: UNAUTHORIZED
       ResponseParameters:
-        gatewayresponse.header.Access-Control-Allow-Origin: "'https://medisplain.brighthills.cloud'"
+        gatewayresponse.header.Access-Control-Allow-Origin:
+          Fn::Sub:
+            - "'${Origin}'"
+            - Origin: !Ref Origin
         gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
       StatusCode: '401'
       ResponseTemplates:
@@ -298,7 +307,10 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ResponseType: ACCESS_DENIED
       ResponseParameters:
-        gatewayresponse.header.Access-Control-Allow-Origin: "'https://medisplain.brighthills.cloud'"
+        gatewayresponse.header.Access-Control-Allow-Origin:
+          Fn::Sub:
+            - "'${Origin}'"
+            - Origin: !Ref Origin
         gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
       StatusCode: '403'
       ResponseTemplates:
