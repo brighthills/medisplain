@@ -16,6 +16,9 @@ Parameters:
   DisconnectFunctionLambdaKey:
     Type: String
     Default: ws-disconnect-handler.zip
+  DefaultFunctionLambdaKey:
+    Type: String
+    Default: ws-default-handler.zip
 
 Resources:
   WebSocketApi:
@@ -132,7 +135,7 @@ Resources:
         S3Key: !Ref ConnectFunctionLambdaKey
       Environment:
         Variables:
-          TABLE_NAME: !Ref DynamoMetadataTableName
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
 
   PermissionForConnectFunction:
     Type: AWS::Lambda::Permission
@@ -157,7 +160,7 @@ Resources:
         S3Key: !Ref DisconnectFunctionLambdaKey
       Environment:
         Variables:
-          TABLE_NAME: !Ref DynamoMetadataTableName
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
 
   PermissionForDisconnectFunction:
     Type: AWS::Lambda::Permission
@@ -183,6 +186,48 @@ Resources:
       RouteKey: "$disconnect"
       AuthorizationType: NONE
       Target: !Join [ "/", [ "integrations", !Ref WebSocketDisconnectIntegration ] ]
+
+  WebSocketDefaultIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref WebSocketApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !Sub
+        arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DefaultHandlerFunction.Arn}/invocations
+      IntegrationMethod: POST
+
+  WebSocketDefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref WebSocketApi
+      RouteKey: "$default"
+      AuthorizationType: NONE
+      Target: !Join [ "/", [ "integrations", !Ref WebSocketDefaultIntegration ] ]
+
+  DefaultHandlerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-default-function-${Environment}"
+      Runtime: python3.11
+      Handler: ws_default_handler.handler
+      Role: !GetAtt WsConnectFunctionRole.Arn
+      Timeout: 10
+      Code:
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
+        S3Key: !Ref DefaultFunctionLambdaKey
+      Environment:
+        Variables:
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
+
+  PermissionForDefaultHandlerFunction:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DefaultHandlerFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/$default
 
 Outputs:
   WebSocketApiEndpoint:
