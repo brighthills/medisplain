@@ -49,7 +49,7 @@ def handler(event, context):
         return {
             "statusCode": 200,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": "https://medisplain.brighthills.cloud",
                 "Access-Control-Allow-Credentials": True,
                 "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 "Access-Control-Allow-Methods": "OPTIONS,GET"
@@ -62,7 +62,7 @@ def handler(event, context):
         return {
             "statusCode": 500,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": "https://medisplain.brighthills.cloud",
                 "Access-Control-Allow-Credentials": True
             },
             "body": json.dumps({"error": "Internal server error"})
