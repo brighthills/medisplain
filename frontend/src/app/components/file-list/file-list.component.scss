@@ -40,6 +40,18 @@ header {
       font-size: 0.875rem;
       color: #6b7280;
       margin-top: 0.25rem;
+      margin-bottom: 0.1em;
+    }
+
+    .report-status {
+      margin-top: 0.2rem;
+      margin-bottom: 0.1em;
+      font-size: 0.85rem;
+      font-weight: 500;
+
+      &.done {
+        color: #b2cbc5;
+      }
     }
   }
 
@@ -51,24 +63,49 @@ header {
     min-height: 38px;
     position: relative;
 
-    .spinner {
-      width: 30px;
+    .btn-green {
+      margin-left: 10px;
+      background-color: #4ec5dc;
+    }
+
+    .spinner-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 1em; // vagy fix magasság pl. 20px, ha kell
+    }
+
+    .fixed-width-btn {
+      width: 140px;
+      height: 38px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .btn-placeholder {
+      width: 140px;
       height: 30px;
+      display: inline-flex;
+      justify-content: center;
+      margin-left: 10px;
+    }
+
+    .spinner.inside {
+      width: 18px;
+      height: 18px;
       border: 2px solid rgba(113, 79, 252, 0.2);
       border-top-color: #714ffc;
       border-radius: 50%;
       animation: spin 0.6s linear infinite;
     }
 
-    .loading-indicator {
-      display: none; // elavult, leváltva spinnerre
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
     }
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
   }
 }
 
@@ -99,4 +136,3 @@ header {
     color: #312e81;
   }
 }
-
