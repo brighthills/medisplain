@@ -51,22 +51,6 @@ header {
     min-height: 38px;
     position: relative;
 
-    .btn {
-      background-color: #714ffc;
-      color: white;
-      padding: 0.5rem 1rem;
-      font-weight: 600;
-      font-size: 0.875rem;
-      border: none;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-
-      &:hover {
-        background-color: #5b3fd1;
-      }
-    }
-
     .spinner {
       width: 30px;
       height: 30px;
