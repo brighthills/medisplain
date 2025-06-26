@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   DynamoMetadataTableName:
     Type: String
     Default: user-file-metadata
@@ -46,7 +46,7 @@ Resources:
               Service: apigateway.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: ApiGatewayWebSocketLogs
+        - PolicyName: !Sub ${Project}-api-gateway-web-socket-logs-${Environment}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -78,7 +78,7 @@ Resources:
     Type: AWS::ApiGatewayV2::Stage
     Properties:
       ApiId: !Ref WebSocketApi
-      StageName: dev
+      StageName: !Sub ${Environment}
       AutoDeploy: true
       AccessLogSettings:
         DestinationArn: !GetAtt WebSocketAccessLogGroup.Arn
@@ -99,7 +99,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: WebSocketConnectFunctionPolicy
+        - PolicyName: !Sub ${Project}-web-socket-connect-function-policy-${Environment}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -111,8 +111,8 @@ Resources:
                   - dynamodb:PutItem
                   - dynamodb:Query
                 Resource:
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoMetadataTableName}
-                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoMetadataTableName}/index/GSI1
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${Project}-${DynamoMetadataTableName}-${Environment}
+                  - !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${Project}-${DynamoMetadataTableName}-${Environment}/index/GSI1
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -129,11 +129,13 @@ Resources:
       Role: !GetAtt WsConnectFunctionRole.Arn
       Timeout: 10
       Code:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: !Ref ConnectFunctionLambdaKey
       Environment:
         Variables:
-          TABLE_NAME: !Ref DynamoMetadataTableName
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
 
   PermissionForConnectFunction:
     Type: AWS::Lambda::Permission
@@ -152,11 +154,13 @@ Resources:
       Role: !GetAtt WsConnectFunctionRole.Arn  # Reuse same role for simplicity
       Timeout: 10
       Code:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: !Ref DisconnectFunctionLambdaKey
       Environment:
         Variables:
-          TABLE_NAME: !Ref DynamoMetadataTableName
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
 
   PermissionForDisconnectFunction:
     Type: AWS::Lambda::Permission
@@ -209,11 +213,13 @@ Resources:
       Role: !GetAtt WsConnectFunctionRole.Arn
       Timeout: 10
       Code:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: !Ref DefaultFunctionLambdaKey
       Environment:
         Variables:
-          TABLE_NAME: !Ref DynamoMetadataTableName
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
 
   PermissionForDefaultHandlerFunction:
     Type: AWS::Lambda::Permission
@@ -223,9 +229,8 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${WebSocketApi}/*/$default
 
-
 Outputs:
   WebSocketApiEndpoint:
-    Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/dev"
+    Value: !Sub "wss://${WebSocketApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}"
     Export:
-      Name: WebSocketApiEndpoint
+      Name: !Sub WebSocketApiEndpoint${Environment}

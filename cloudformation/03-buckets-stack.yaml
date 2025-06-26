@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   BucketNameUpload:
     Type: String
     Default: uploads
@@ -21,7 +21,9 @@ Resources:
       NotificationConfiguration:
         QueueConfigurations:
           - Event: s3:ObjectCreated:Put
-            Queue: !ImportValue FileUploadQueueArn
+            Queue:
+              Fn::ImportValue:
+                Fn::Sub: FileUploadQueueArn${Environment}
 
   LambdaCodeBucket:
     Type: AWS::S3::Bucket
@@ -80,7 +82,8 @@ Resources:
     Type: AWS::SQS::QueuePolicy
     Properties:
       Queues:
-        - !ImportValue FileUploadQueueRef
+        - Fn::ImportValue:
+            Fn::Sub: FileUploadQueueRef${Environment}
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -88,7 +91,9 @@ Resources:
             Principal:
               Service: s3.amazonaws.com
             Action: "sqs:SendMessage"
-            Resource: !ImportValue FileUploadQueueArn
+            Resource:
+              Fn::ImportValue:
+                Fn::Sub: FileUploadQueueArn${Environment}
             Condition:
               ArnLike:
                 aws:SourceArn: !Join [ "", [ "arn:aws:s3:::", !Ref AWS::StackName, "-", !Ref BucketNameUpload, "-", !Ref Environment ] ]
@@ -97,18 +102,18 @@ Outputs:
   FileUploadBucket:
     Value: !Ref FileUploadBucket
     Export:
-      Name: FileUploadBucket
+      Name: !Sub FileUploadBucket${Environment}
   LambdaCodeBucket:
     Value: !Ref LambdaCodeBucket
     Export:
-      Name: LambdaCodeBucket
+      Name: !Sub LambdaCodeBucket${Environment}
   LambdaUploadExecutionRole:
     Value: !GetAtt LambdaUploadExecutionRole.Arn
     Export:
-      Name: LambdaUploadExecutionRole
+      Name: !Sub LambdaUploadExecutionRole${Environment}
   LambdaSecurityBucket:
     Value: !Ref LambdaSecurityBucket
     Export:
-      Name: LambdaSecurityBucket
+      Name: !Sub LambdaSecurityBucket${Environment}
 
 

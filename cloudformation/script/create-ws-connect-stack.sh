@@ -1,9 +1,9 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-ws-connect-handler \
-  --template-body file://11-ws-connect-stack.yaml \
-  --profile bagalyze \
+  --stack-name medisplain-ws-connect-handler \
+  --template-body file://09-ws-connect-stack.yaml \
+  --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
-      ParameterKey=Environment,ParameterValue=dev
+      ParameterKey=Environment,ParameterValue=test

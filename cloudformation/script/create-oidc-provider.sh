@@ -1,9 +1,9 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-oidc-provider \
+  --stack-name medisplain-oidc-provider \
   --template-body file://01-oidc-github-actions.yaml \
-  --profile bagalyze \
+  --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
       ParameterKey=GitHubOrg,ParameterValue=brighthills \
