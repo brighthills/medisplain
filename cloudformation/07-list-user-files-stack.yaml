@@ -10,6 +10,8 @@ Parameters:
   FunctionListUserFilesName:
     Type: String
     Default: list-user-files.zip
+  Origin:
+    Type: String
 
 Resources:
   ListUserFilesFunction:
@@ -32,6 +34,7 @@ Resources:
           TABLE_NAME:
             Fn::ImportValue:
               Fn::Sub: UserFileMetadataTable${Environment}
+          ORIGIN: !Ref Origin
 
   ApiGatewayListUserFilesResource:
     Type: AWS::ApiGateway::Resource
@@ -84,7 +87,10 @@ Resources:
           - StatusCode: 200
             ResponseParameters:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Origin: "'https://medisplain.brighthills.cloud'"
+              method.response.header.Access-Control-Allow-Origin:
+                Fn::Sub:
+                  - "'${Origin}'"
+                  - Origin: !Ref Origin
               method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET'"
               method.response.header.Access-Control-Allow-Credentials: "'true'"
             ResponseTemplates:
