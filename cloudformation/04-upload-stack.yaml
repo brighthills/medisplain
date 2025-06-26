@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   FunctionUploadName:
     Type: String
     Default: upload-file-handler.zip
@@ -24,7 +24,7 @@ Resources:
     Properties:
       LambdaConfig:
         PreSignUp: !GetAtt PreSignupLambda.Arn
-      UserPoolName: RestrictedUserPool
+      UserPoolName: !Sub ${Project}-restricted-user-pool-${Environment}
       UsernameAttributes:
         - email
       AutoVerifiedAttributes:
@@ -40,7 +40,7 @@ Resources:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: true
         InviteMessageTemplate:
-          EmailMessage: "Hello {username} ! You have been invited to participate in 'bagalyze' dev stage development phase. Your temporary password is {####}"
+          EmailMessage: "Hello {username} ! You have been invited to participate in 'medisplain' dev stage development phase. Your temporary password is {####}"
           EmailSubject: "Welcome to the system"
         UnusedAccountValidityDays: 7
       AccountRecoverySetting:
@@ -52,14 +52,14 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     DependsOn: RestrictedUserPool
     Properties:
-      Domain: bagalyze
+      Domain: !Sub medisplain-${Environment}
       UserPoolId: !Ref RestrictedUserPool
 
   RestrictedUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     DependsOn: RestrictedUserPool
     Properties:
-      ClientName: restricted-client
+      ClientName: !Sub ${Project}-restricted-client-${Environment}
       UserPoolId: !Ref RestrictedUserPool
       GenerateSecret: false
       ExplicitAuthFlows:
@@ -72,9 +72,9 @@ Resources:
       SupportedIdentityProviders:
         - COGNITO
       CallbackURLs:
-        - https://localhost:4200/callback
+        - https://medisplain.brighthills.cloud/callback
       LogoutURLs:
-        - https://localhost:4200/logout
+        - https://medisplain.brighthills.cloud/logout
       AllowedOAuthFlows:
         - code
       AllowedOAuthScopes:
@@ -97,15 +97,21 @@ Resources:
     Properties:
       FunctionName: !Join ["-", [!Ref AWS::StackName, "function-upload-file", !Ref Environment]]
       Handler: upload_handler.handler
-      Role: !ImportValue LambdaUploadExecutionRole
+      Role:
+        Fn::ImportValue:
+          Fn::Sub: LambdaUploadExecutionRole${Environment}
       Runtime: python3.11
       Timeout: 10
       Code:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: !Ref FunctionUploadName
       Environment:
         Variables:
-          BUCKET_NAME: !ImportValue FileUploadBucket
+          BUCKET_NAME:
+            Fn::ImportValue:
+              Fn::Sub: FileUploadBucket${Environment}
 
   LambdaApiPermission:
     Type: AWS::Lambda::Permission
@@ -134,7 +140,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: WriteToDynamo
+        - PolicyName: !Sub ${Project}-write-to-dynamo-${Environment}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -161,7 +167,9 @@ Resources:
       Runtime: python3.11
       Timeout: 10
       Code:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: !Ref FunctionPersistUserName
       Environment:
         Variables:
@@ -172,7 +180,7 @@ Resources:
   ApiGatewayCloudWatchLogsRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: apigateway-cloudwatch-logs-role
+      RoleName: !Sub ${Project}-apigateway-cloudwatch-logs-role-${Environment}
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -181,7 +189,7 @@ Resources:
               Service: apigateway.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: ApiGatewayPushToCloudWatch
+        - PolicyName: !Sub ${Project}-api-gateway-push-to-cloud-watch-${Environment}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -202,12 +210,12 @@ Resources:
   ApiGatewayRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Name: !Sub '${AWS::StackName}-api'
+      Name: !Sub ${AWS::StackName}-api-${Environment}
 
   ApiAuthorizer:
     Type: AWS::ApiGateway::Authorizer
     Properties:
-      Name: CognitoAuthorizer
+      Name: !Sub ${Project}-cognito-authorizer-${Environment}
       Type: COGNITO_USER_POOLS
       IdentitySource: method.request.header.Authorization
       RestApiId: !Ref ApiGatewayRestApi
@@ -257,7 +265,7 @@ Resources:
           - StatusCode: 200
             ResponseParameters:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
+              method.response.header.Access-Control-Allow-Origin: "'http://medisplain.brighthills.cloud'"
               method.response.header.Access-Control-Allow-Methods: "'OPTIONS,POST'"
               method.response.header.Access-Control-Allow-Credentials: "'true'"
             ResponseTemplates:
@@ -278,7 +286,7 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ResponseType: UNAUTHORIZED
       ResponseParameters:
-        gatewayresponse.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
+        gatewayresponse.header.Access-Control-Allow-Origin: "'http://medisplain.brighthills.cloud'"
         gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
       StatusCode: '401'
       ResponseTemplates:
@@ -290,7 +298,7 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ResponseType: ACCESS_DENIED
       ResponseParameters:
-        gatewayresponse.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
+        gatewayresponse.header.Access-Control-Allow-Origin: "'http://medisplain.brighthills.cloud'"
         gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
       StatusCode: '403'
       ResponseTemplates:
@@ -318,7 +326,7 @@ Resources:
   ApiGatewayAccessLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-access-logs
+      LogGroupName: !Sub /aws/apigateway/${AWS::StackName}-access-logs-${Environment}
       RetentionInDays: 7
 
   #---DynamoDb
@@ -343,7 +351,7 @@ Resources:
   UserFileMetadataTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Ref DynamoMetadataTableName
+      TableName: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: PK
@@ -379,33 +387,33 @@ Outputs:
   UploadFileFunction:
     Value: !Ref UploadFileFunction
     Export:
-      Name: UploadFileFunction
+      Name: !Sub UploadFileFunction${Environment}
   ApiEndpoint:
     Description: API Gateway endpoint URL
     Value: !Sub 'https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/upload'
     Export:
-      Name: ApiEndpoint
+      Name: !Sub ApiEndpoint${Environment}
   ApiGatewayRestApi:
     Value: !Ref ApiGatewayRestApi
     Export:
-      Name: ApiGatewayRestApi
+      Name: !Sub ApiGatewayRestApi${Environment}
   ApiGatewayRestApiRootResourceId:
     Value: !GetAtt ApiGatewayRestApi.RootResourceId
     Export:
-      Name: ApiGatewayRestApiRootResourceId
+      Name: !Sub ApiGatewayRestApiRootResourceId${Environment}
   UserFileMetadataTable:
     Value: !Ref UserFileMetadataTable
     Export:
-      Name: UserFileMetadataTable
+      Name: !Sub UserFileMetadataTable${Environment}
   ApiAuthorizer:
     Value: !Ref ApiAuthorizer
     Export:
-      Name: ApiAuthorizer
+      Name: !Sub ApiAuthorizer${Environment}
   UserFileMetadataTableArn:
     Value: !GetAtt UserFileMetadataTable.Arn
     Export:
-      Name: UserFileMetadataTableArn
+      Name: !Sub UserFileMetadataTableArn${Environment}
   UserFileMetadataTableStreamArn:
     Value: !GetAtt UserFileMetadataTable.StreamArn
     Export:
-      Name: UserFileMetadataTableStreamArn
+      Name: !Sub UserFileMetadataTableStreamArn${Environment}

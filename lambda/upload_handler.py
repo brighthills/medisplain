@@ -21,7 +21,9 @@ def get_file_type_and_extension(base64_data):
 def handler(event, context):
     try:
         body = json.loads(event['body'])
+
         base64_data = body['file_base64']
+        original_filename = body.get('original_filename', 'unknown')
         file_binary = base64.b64decode(base64_data)
 
         content_type, extension = get_file_type_and_extension(base64_data[:20])
@@ -34,7 +36,8 @@ def handler(event, context):
         metadata = {
             'user-email': uploader_email,
             'user-id': uploader_id,
-            'upload-timestamp': datetime.utcnow().isoformat()
+            'upload-timestamp': datetime.utcnow().isoformat(),
+            'original-filename': original_filename
         }
 
         s3.put_object(
@@ -48,7 +51,7 @@ def handler(event, context):
         return {
             "statusCode": 200,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": "http://medisplain.brighthills.cloud",
                 "Access-Control-Allow-Credentials": True,
                 "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 "Access-Control-Allow-Methods": "OPTIONS,POST"
@@ -56,6 +59,7 @@ def handler(event, context):
             "body": json.dumps({
                 "message": "File uploaded",
                 "filename": filename,
+                "original_filename": original_filename,
                 "metadata": metadata
             })
         }
@@ -64,7 +68,7 @@ def handler(event, context):
         return {
             "statusCode": 500,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": "http://medisplain.brighthills.cloud",
                 "Access-Control-Allow-Credentials": True
             },
             "body": json.dumps({"error": str(e)})
