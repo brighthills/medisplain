@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UploadService } from '../../services/upload.service';
 import { AuthService } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
@@ -11,14 +11,18 @@ import { RouterModule } from '@angular/router';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
 })
-export class SidebarComponent {
+export class SidebarComponent implements OnInit {
   uploadSuccessMessage = '';
+  email = localStorage.getItem('email') || '';
 
   constructor(
     private uploadService: UploadService,
     private authService: AuthService,
     private toastService: ToastService
-  ) { }
+  ) {
+  }
+  ngOnInit(): void {
+  }
 
   uploadFile(): void {
     const input = document.createElement('input');

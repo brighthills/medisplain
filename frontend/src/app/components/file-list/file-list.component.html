@@ -1,19 +1,15 @@
 <div class="file-list-container">
-  <header class="page-header">
-    <div class="header-text">
-      <h1 class="page-title">Uploaded Reports</h1>
-      <p class="meta">Browse your uploaded medical documents</p>
-    </div>
-  </header>
+  <app-page-header
+    title="Uploaded Reports"
+    subtitle="Browse your uploaded medical documents"
+  >
+  </app-page-header>
   <ng-container *ngIf="files.length > 0; else noFiles">
     <div class="report-item" *ngFor="let file of files">
       <div class="report-info">
         <h3 class="report-name">
           <ng-container *ngIf="file.status === 'done'; else plainFilename">
-            <span
-              class="clickable-filename"
-              (click)="fileDetail(file.filename)"
-            >
+            <span class="filename-link" (click)="fileDetail(file.filename)">
               {{ file.filename }}
             </span>
           </ng-container>

@@ -6,11 +6,12 @@ import { FileStoreService } from '../../services/file-store.service';
 import { WebSocketService } from '../../services/websocket.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { PageHeaderComponent } from '../page-header/page-header.component';
 
 @Component({
   selector: 'app-files',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PageHeaderComponent],
   templateUrl: './file-list.component.html',
   styleUrls: ['./file-list.component.scss']
 })
@@ -74,8 +75,8 @@ export class FileListComponent implements OnInit, OnDestroy {
       next: (signedUrl: string) => {
         const a = document.createElement('a');
         a.href = signedUrl;
-        a.download = filename; // ez csak akkor működik, ha Content-Disposition is be van állítva CloudFronton
-        a.target = '_blank';   // új fülön is nyitható, ha inkább megtekinteni akarod
+        a.download = filename; 
+        a.target = '_blank';   
         a.click();
       },
       error: (err) => {
