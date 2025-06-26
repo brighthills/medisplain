@@ -22,13 +22,13 @@
         </p>
       </div>
       <div class="report-action">
-        <button class="btn primary" (click)="fileDownload(file.filename)">
+        <button class="btn secondary" (click)="fileDownload(file.filename)">
           ⬇ Download
         </button>
         <ng-container *ngIf="file.status === 'done'; else spinnerBlock">
           <button
-            class="btn primary btn-green fixed-width-btn"
-            (click)="fileDownload(file.filename)"
+            class="btn primary fixed-width-btn"
+            (click)="fileDetail(file.filename)"
           >
             ⬇ AI Report
           </button>
