@@ -10,19 +10,3 @@
     overflow: auto;
   }
 }
-
-.logout-button {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  background-color: transparent;
-  color: #6a0dad;
-  font-weight: 500;
-  border: none;
-  font-family: "Helvetica Neue", sans-serif;
-  cursor: pointer;
-
-  &:hover {
-    text-decoration: underline;
-  }
-}

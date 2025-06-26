@@ -1,0 +1,49 @@
+// src/styles/_buttons.scss vagy common.scss
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+    text-decoration: none;
+
+    &.primary {
+        font-size: 0.9rem;
+
+        margin-bottom: 0.5rem;
+        background-color: #714ffc;
+        font-weight: 550;
+        color: white;
+
+        &:hover {
+            background-color: #5a3dca;
+        }
+    }
+
+    &.secondary {
+        background-color: #e5e7ebc7;
+        color: #333;
+        font-weight: 550;
+        font-size: 0.875rem;
+        border: 1px solid #ccc;
+
+        &:hover {
+            background-color: #e0e0f0;
+        }
+    }
+
+    &.icon-left {
+        gap: 0.5rem;
+    }
+}
+
+.btn-block {
+    width: 100%;
+    display: block;
+}

@@ -24,14 +24,19 @@ def handler(event, context):
             continue
 
         new_image = record['dynamodb'].get('NewImage', {})
+
         status = new_image.get('status', {}).get('S')
+        original_filename = new_image.get('originalFilename', {}).get('S')
+        ai_summary = new_image.get('aiSummary', {}).get('S')
 
         message = {
             "pk": new_image.get("PK", {}).get("S"),
             "sk": new_image.get("SK", {}).get("S"),
             "filename": new_image.get("filename", {}).get("S"),
             "s3Location": new_image.get("s3Location", {}).get("S"),
-            "status": status
+            "status": status,
+            "aiSummary": ai_summary,
+            "originalFilename": original_filename
         }
 
         if status == 'in-progress':
