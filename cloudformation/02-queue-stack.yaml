@@ -28,7 +28,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Join [ "-", [ !Ref AWS::StackName, "file-to-analyze", !Ref Environment ] ]
-      VisibilityTimeout: 30
+      VisibilityTimeout: 180
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt FileToAnalyzeDeadLetterQueue.Arn
         maxReceiveCount: 1
