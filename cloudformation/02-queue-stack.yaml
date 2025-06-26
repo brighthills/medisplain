@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
 
 Resources:
   FileUploadQueue:
@@ -43,32 +43,32 @@ Outputs:
   FileUploadQueueRef:
     Value: !Ref FileUploadQueue
     Export:
-      Name: FileUploadQueueRef
+      Name: !Sub FileUploadQueueRef${Environment}
   FileUploadQueueArn:
     Value: !GetAtt FileUploadQueue.Arn
     Export:
-      Name: FileUploadQueueArn
+      Name: !Sub FileUploadQueueArn${Environment}
   FileToAnalyzeQueueRef:
     Value: !Ref FileToAnalyzeQueue
     Export:
-      Name: FileToAnalyzeQueueRef
+      Name: !Sub FileToAnalyzeQueueRef${Environment}
   FileToAnalyzeQueueArn:
     Value: !GetAtt FileToAnalyzeQueue.Arn
     Export:
-      Name: FileToAnalyzeQueueArn
+      Name: !Sub FileToAnalyzeQueueArn${Environment}
   FileUploadDeadLetterQueueRef:
     Value: !Ref FileUploadDeadLetterQueue
     Export:
-      Name: FileUploadDeadLetterQueueRef
+      Name: !Sub FileUploadDeadLetterQueueRef${Environment}
   FileUploadDeadLetterQueueArn:
     Value: !GetAtt FileUploadDeadLetterQueue.Arn
     Export:
-      Name: FileUploadDeadLetterQueueArn
+      Name: !Sub FileUploadDeadLetterQueueArn${Environment}
   FileToAnalyzeDeadLetterQueueRef:
     Value: !Ref FileToAnalyzeDeadLetterQueue
     Export:
-      Name: FileToAnalyzeDeadLetterQueueRef
+      Name: !Sub FileToAnalyzeDeadLetterQueueRef${Environment}
   FileToAnalyzeDeadLetterQueueArn:
     Value: !GetAtt FileToAnalyzeDeadLetterQueue.Arn
     Export:
-      Name: FileToAnalyzeDeadLetterQueueArn
+      Name: !Sub FileToAnalyzeDeadLetterQueueArn${Environment}

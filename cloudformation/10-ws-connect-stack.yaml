@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   DynamoMetadataTableName:
     Type: String
     Default: user-file-metadata

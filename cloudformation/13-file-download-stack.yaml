@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   FunctionDownloadHandlerKey:
     Type: String
     Default: file-download-handler.zip

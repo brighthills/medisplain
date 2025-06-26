@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   FunctionAIProcessConsumerName:
     Type: String
     Default: consume-file-ai-process.zip
@@ -88,7 +88,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref DynamoMetadataTableName
           PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: !Ref ParametersAndSecretsExtensionPort
-          OPENAI_API_KEY_SECRET_ARN: !Ref OpenAIApiKeySecretRef
+          OPENAI_API_KEY_SECRET_ARN: !ImportValue OpenAIApiKeySecretRef
           SECRETS_MANAGER_TTL: !Ref SecretsManagerTTL
       # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
       DeadLetterConfig:

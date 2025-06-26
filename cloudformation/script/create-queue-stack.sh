@@ -1,9 +1,9 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-queue \
+  --stack-name medisplain-queue \
   --template-body file://02-queue-stack.yaml \
-  --profile bagalyze \
+  --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
-      ParameterKey=Environment,ParameterValue=dev
+      ParameterKey=Environment,ParameterValue=test
