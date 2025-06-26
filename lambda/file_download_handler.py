@@ -10,6 +10,7 @@ from cryptography.hazmat.primitives import hashes
 
 secrets = boto3.client('secretsmanager')
 s3 = boto3.client('s3')
+origin = os.environ.get('ORIGIN', '*')
 
 def rsa_signer(message):
     secret_name = os.environ['CLOUDFRONT_PRIVATE_KEY_SECRET_NAME']
@@ -58,7 +59,7 @@ def handler(event, context):
         return {
             'statusCode': 200,
             'headers': {
-                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": "true"
             },
             'body': signed_url
@@ -67,5 +68,9 @@ def handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
+            "headers": {
+                "Access-Control-Allow-Origin": origin,
+                "Access-Control-Allow-Credentials": True
+            },
             'body': f"Failed to generate signed URL: {str(e)}"
         }
