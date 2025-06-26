@@ -6,5 +6,5 @@ aws cloudformation update-stack \
   --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
-      ParameterKey=Environment,ParameterValue=test \
-      ParameterKey=Origin,ParameterValue=https://medisplain.brighthills.cloud
+      ParameterKey=Environment,ParameterValue=dev \
+      ParameterKey=Origin,ParameterValue=http://localhost:4200
