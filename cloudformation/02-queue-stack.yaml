@@ -13,7 +13,7 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Join [ "-", [ !Ref AWS::StackName, "file-upload", !Ref Environment ] ]
-      VisibilityTimeout: 30
+      VisibilityTimeout: 60
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt FileUploadDeadLetterQueue.Arn
         maxReceiveCount: 1  # Move to DLQ after 1 failed receive (i.e., Lambda error)
