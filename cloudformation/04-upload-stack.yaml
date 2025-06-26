@@ -72,9 +72,9 @@ Resources:
       SupportedIdentityProviders:
         - COGNITO
       CallbackURLs:
-        - https://medisplain.brighthills.cloud/callback
+        - https://localhost:4200/callback
       LogoutURLs:
-        - https://medisplain.brighthills.cloud/logout
+        - https://localhost:4200/logout
       AllowedOAuthFlows:
         - code
       AllowedOAuthScopes:
@@ -286,7 +286,7 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ResponseType: UNAUTHORIZED
       ResponseParameters:
-        gatewayresponse.header.Access-Control-Allow-Origin: "'http://medisplain.brighthills.cloud'"
+        gatewayresponse.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
         gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
       StatusCode: '401'
       ResponseTemplates:
@@ -298,7 +298,7 @@ Resources:
       RestApiId: !Ref ApiGatewayRestApi
       ResponseType: ACCESS_DENIED
       ResponseParameters:
-        gatewayresponse.header.Access-Control-Allow-Origin: "'http://medisplain.brighthills.cloud'"
+        gatewayresponse.header.Access-Control-Allow-Origin: "'http://localhost:4200'"
         gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
       StatusCode: '403'
       ResponseTemplates:
