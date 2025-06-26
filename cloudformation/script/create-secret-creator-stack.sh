@@ -7,4 +7,4 @@ aws cloudformation create-stack \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
       ParameterKey=Environment,ParameterValue=test \
-      ParameterKey=OpenAISecretString,ParameterValue=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
+      ParameterKey=OpenAISecretString,ParameterValue=<the-secret>
