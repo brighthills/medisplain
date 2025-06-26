@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   FunctionAIProcessConsumerName:
     Type: String
     Default: file-metadata-stream-processor.zip
@@ -15,10 +15,10 @@ Parameters:
     Default: user-file-metadata
   WebsocketEndpoint:
     Type: String
-    Default: wss://a9iwmgn508.execute-api.eu-central-1.amazonaws.com/dev
+    Default: wss://x4rtfzardl.execute-api.eu-central-1.amazonaws.com/test/
   WebsocketApiArn:
     Type: String
-    Default: arn:aws:execute-api:eu-central-1:447923164625:a9iwmgn508/*/$connect
+    Default: arn:aws:execute-api:eu-central-1:447923164625:x4rtfzardl/*/$connect
 
 Resources:
   DynamoStreamFileMetadataProcessorFunction:
@@ -30,12 +30,16 @@ Resources:
       Runtime: python3.11
       Timeout: 10
       Code:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: !Ref FunctionAIProcessConsumerName
       Environment:
         Variables:
-          QUEUE_URL: !ImportValue FileToAnalyzeQueueRef
-          TABLE_NAME: !Ref DynamoMetadataTableName
+          QUEUE_URL:
+            Fn::ImportValue:
+              Fn::Sub:  FileToAnalyzeQueueRef${Environment}
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
           WEBSOCKET_ENDPOINT: !Ref WebsocketEndpoint
 
   DynamoStreamFileMetadataProcessorRole:
@@ -49,14 +53,16 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: StreamToSQS
+        - PolicyName: !Sub ${Project}-stream-to-sqs-${Environment}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action:
                   - sqs:SendMessage
-                Resource: !ImportValue FileToAnalyzeQueueArn
+                Resource:
+                  Fn::ImportValue:
+                    Fn::Sub: FileToAnalyzeQueueArn${Environment}
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -70,7 +76,9 @@ Resources:
                   - dynamodb:DescribeStream
                   - dynamodb:ListStreams
                   - dynamodb:GetItem
-                Resource: !ImportValue UserFileMetadataTableStreamArn
+                Resource:
+                  Fn::ImportValue:
+                    Fn::Sub: UserFileMetadataTableStreamArn${Environment}
               - Effect: Allow
                 Action:
                   - execute-api:ManageConnections
@@ -79,7 +87,9 @@ Resources:
   DynamoStreamMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
-      EventSourceArn: !ImportValue UserFileMetadataTableStreamArn
+      EventSourceArn:
+        Fn::ImportValue:
+          Fn::Sub: UserFileMetadataTableStreamArn${Environment}
       FunctionName: !Ref DynamoStreamFileMetadataProcessorFunction
       StartingPosition: LATEST
       BatchSize: 5
