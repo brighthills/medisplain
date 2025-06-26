@@ -68,41 +68,6 @@
         margin-bottom: 1.5rem;
     }
 
-    .nav-links {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-
-        a {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.92rem;
-            font-weight: 500;
-            color: #1f2937;
-            text-decoration: none;
-            padding: 0.4rem 0.6rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.2s ease;
-
-            .icon {
-                font-size: 1rem;
-                color: #714ffc;
-            }
-
-            &:hover {
-                background-color: #f3f4f6;
-            }
-
-            &.active {
-                background-color: #e0e7ff;
-                color: #3730a3;
-                font-weight: 600;
-            }
-        }
-    }
-
     .footer-actions {
         padding-top: 1.5rem;
         border-top: 1px solid #e5e7eb;

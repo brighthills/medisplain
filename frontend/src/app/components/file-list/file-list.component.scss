@@ -1,140 +1,121 @@
 @use "../../../styles/_common" as *;
 
-header {
-  width: 100%;
-  padding: 1.2rem 0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-  .app-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    font-family: "Helvetica Neue", sans-serif;
-    margin: 0;
-  }
-}
-
-.report-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #ffffff;
-  padding: 1rem 1.5rem;
-  margin-bottom: 0.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f3f4f6;
-  }
-
-  .report-info {
-    .report-name {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 0;
-      color: #111827;
-    }
-
-    .report-meta {
-      font-size: 0.875rem;
-      color: #6b7280;
-      margin-top: 0.25rem;
-      margin-bottom: 0.1em;
-    }
-
-    .report-status {
-      margin-top: 0.2rem;
-      margin-bottom: 0.1em;
-      font-size: 0.85rem;
-      font-weight: 500;
-
-      &.done {
-        color: #b2cbc5;
-      }
-    }
-  }
-
-  .report-action {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 100px;
-    min-height: 38px;
-    position: relative;
-
-    .btn-green {
-      margin-left: 10px;
-      background-color: #4ec5dc;
-    }
-
-    .spinner-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 1em; // vagy fix magasság pl. 20px, ha kell
-    }
-
-    .fixed-width-btn {
-      margin-left: 5px;
-      width: 140px;
-      height: 38px;
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 0.9rem;
-    }
-
-    .btn-placeholder {
-      width: 140px;
-      height: 30px;
-      display: inline-flex;
-      justify-content: center;
-      margin-left: 10px;
-    }
-
-    .spinner.inside {
-      width: 18px;
-      height: 18px;
-      border: 2px solid rgba(113, 79, 252, 0.2);
-      border-top-color: #714ffc;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-  }
-}
-
-.no-files {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1rem;
-  color: #6b7280;
-  font-style: italic;
-}
 .file-list-container {
-  padding-right: 40px;
-  padding-left: 40px;
-}
-
-.filename-link {
-  color: #4f46e5; // indigo-600
-  text-decoration: underline;
-  cursor: pointer;
-  transition: color 0.2s ease;
-
-  &:hover {
-    color: #3730a3; // indigo-800
-    text-decoration: underline;
+  padding-top: 2rem;
+  app-page-header {
+    display: block;
   }
 
-  &:active {
-    color: #312e81;
+  .report-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 1.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #f3f4f6;
+    }
+
+    .report-info {
+      .report-name {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+        color: #111827;
+      }
+
+      .report-meta {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .report-status {
+        font-size: 0.85rem;
+        font-weight: 500;
+
+        &.done {
+          color: #b2cbc5;
+        }
+      }
+    }
+
+    .report-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 100px;
+      min-height: 38px;
+      position: relative;
+
+      .btn-green {
+        margin-left: 10px;
+        background-color: #4ec5dc;
+      }
+
+      .fixed-width-btn {
+        margin-left: 5px;
+        width: 140px;
+        height: 38px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.9rem;
+      }
+
+      .btn-placeholder {
+        width: 140px;
+        height: 38px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 10px;
+      }
+
+      .spinner.inside {
+        width: 18px;
+        height: 18px;
+        border: 2px solid rgba(113, 79, 252, 0.2);
+        border-top-color: #714ffc;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    }
+  }
+
+  .no-files {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  .filename-link {
+    color: #4f46e5;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #3730a3;
+    }
+
+    &:active {
+      color: #312e81;
+    }
   }
 }

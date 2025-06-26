@@ -1,9 +1,14 @@
 <div class="sidebar">
-  <!-- Logo -->
   <div class="logo-card">
-    <img src="assets/logo.svg" alt="MedSplain Logo" width="250" height="auto" />
+    <a routerLink="/">
+      <img
+        src="assets/logo.svg"
+        alt="MedSplain Logo"
+        width="250"
+        height="auto"
+      />
+    </a>
   </div>
-  <!-- User Info -->
   <div class="user-section">
     <div class="avatar-shape"></div>
     <div class="user-info">
@@ -12,13 +17,10 @@
     </div>
   </div>
 
-  <!-- Menu -->
   <div class="menu-section">
-    <!-- Upload Button -->
     <button class="btn primary" (click)="uploadFile()">⬆ Upload Report</button>
   </div>
 
-  <!-- Logout -->
   <div class="footer-actions">
     <button class="btn secondary btn-block" (click)="logout()">Logout</button>
   </div>
