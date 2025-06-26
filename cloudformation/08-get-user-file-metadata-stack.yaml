@@ -10,6 +10,8 @@ Parameters:
   FunctionGetUserFileMetadataName:
     Type: String
     Default: get-user-file-metadata.zip
+  Origin:
+    Type: String
 
 Resources:
   GetUserFileMetadataFunction:
@@ -32,6 +34,7 @@ Resources:
           TABLE_NAME:
             Fn::ImportValue:
               Fn::Sub: UserFileMetadataTable${Environment}
+          ORIGIN: !Ref Origin
 
   ApiGatewayGetUserFileMetadataResource:
     Type: AWS::ApiGateway::Resource
@@ -86,7 +89,10 @@ Resources:
           - StatusCode: 200
             ResponseParameters:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
-              method.response.header.Access-Control-Allow-Origin: "'https://medisplain.brighthills.cloud'"
+              method.response.header.Access-Control-Allow-Origin:
+                Fn::Sub:
+                  - "'${Origin}'"
+                  - Origin: !Ref Origin
               method.response.header.Access-Control-Allow-Methods: "'OPTIONS,GET'"
               method.response.header.Access-Control-Allow-Credentials: "'true'"
             ResponseTemplates:
