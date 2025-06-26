@@ -1,6 +1,6 @@
 #!/bin/bash
 
-aws cloudformation update-stack \
+aws cloudformation create-stack \
   --stack-name medisplain-secret-creator \
   --template-body file://11-secret-creator-stack.yaml \
   --profile medisplain \

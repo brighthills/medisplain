@@ -31,7 +31,9 @@ Resources:
           - Id: S3Origin
             DomainName: !Sub
               - "${UploadBucket}.s3.${AWS::Region}.amazonaws.com"
-              - UploadBucket: !ImportValue FileUploadBucket
+              - UploadBucket:
+                  Fn::ImportValue:
+                    Fn::Sub: FileUploadBucket${Environment}
             OriginAccessControlId: !Ref CloudFrontDownloadOAC
             S3OriginConfig: { }
         DefaultCacheBehavior:
@@ -55,12 +57,12 @@ Outputs:
   CloudFrontDownloadDistributionDomainName:
     Value: !GetAtt CloudFrontDownloadDistribution.DomainName
     Export:
-      Name: CloudFrontDownloadDistributionDomainName
+      Name: !Sub CloudFrontDownloadDistributionDomainName${Environment}
   CloudFrontDownloadDistribution:
     Value: !Ref CloudFrontDownloadDistribution
     Export:
-      Name: CloudFrontDownloadDistribution
+      Name: !Sub CloudFrontDownloadDistribution${Environment}
   CloudFrontDownloadDistributionId:
     Value: !GetAtt CloudFrontDownloadDistribution.Id
     Export:
-      Name: CloudFrontDownloadDistributionId
+      Name: !Sub CloudFrontDownloadDistributionId${Environment}
