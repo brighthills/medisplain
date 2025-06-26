@@ -25,6 +25,11 @@ def handler(event, context):
 
         new_image = record['dynamodb'].get('NewImage', {})
 
+        sk = new_image.get("SK", {}).get("S")
+        if sk == "info":
+            logger.info(f"Skipping process! Event is related with user#info --> SK={sk}")
+            continue
+
         status = new_image.get('status', {}).get('S')
         original_filename = new_image.get('originalFilename', {}).get('S')
         ai_summary = new_image.get('aiSummary', {}).get('S')
