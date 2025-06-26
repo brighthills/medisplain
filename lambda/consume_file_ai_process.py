@@ -103,7 +103,7 @@ def analyze_medical_record(text):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": get_parameter(system_prompt_parameter_name)},
-            {"role": "user", "content": "This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."}
+            {"role": "user", "content": get_parameter(user_prompt_parameter_name).format(text=text)}
         ],
         temperature=0.5
     )
