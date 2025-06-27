@@ -1,12 +1,1 @@
 @use "../../../styles/_common" as *;
-
-.app-layout {
-  .main-content {
-    flex: 1;
-    padding: 2rem 3rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    overflow: auto;
-  }
-}

@@ -7,6 +7,7 @@ from datetime import datetime
 
 s3 = boto3.client('s3')
 bucket = os.environ['BUCKET_NAME']
+origin = os.environ.get('ORIGIN', '*')
 
 def get_file_type_and_extension(base64_data):
     if base64_data.startswith('/9j/'):
@@ -51,7 +52,7 @@ def handler(event, context):
         return {
             "statusCode": 200,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": True,
                 "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 "Access-Control-Allow-Methods": "OPTIONS,POST"
@@ -68,7 +69,7 @@ def handler(event, context):
         return {
             "statusCode": 500,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": True
             },
             "body": json.dumps({"error": str(e)})

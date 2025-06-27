@@ -6,7 +6,7 @@ Parameters:
     Type: String
   Project:
     Type: String
-    Default: bagalyze
+    Default: medisplain
   FunctionAIProcessConsumerName:
     Type: String
     Default: consume-file-ai-process.zip
@@ -33,7 +33,7 @@ Resources:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
       Policies:
-        - PolicyName: LambdaS3DynamoAccess
+        - PolicyName: !Sub ${Project}-lambda-s3-dynamo-access-${Environment}
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -41,20 +41,32 @@ Resources:
                 Action:
                   - dynamodb:PutItem
                   - dynamodb:UpdateItem
-                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DynamoMetadataTableName}"
+                Resource: !Sub "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${Project}-${DynamoMetadataTableName}-${Environment}"
               - Effect: Allow
                 Action:
                   - s3:GetObject
                   - s3:HeadObject
                 Resource: !Sub
                   - "arn:aws:s3:::${BucketName}/*"
-                  - BucketName: !ImportValue FileUploadBucket
+                  - BucketName:
+                      Fn::ImportValue:
+                        Fn::Sub: FileUploadBucket${Environment}
               - Effect: Allow
                 Action:
                   - s3:ListBucket
                 Resource: !Sub
                   - "arn:aws:s3:::${BucketName}"
-                  - BucketName: !ImportValue FileUploadBucket
+                  - BucketName:
+                      Fn::ImportValue:
+                        Fn::Sub: FileUploadBucket${Environment}
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                Resource: !Sub
+                  - "arn:aws:s3:::${BucketName}"
+                  - BucketName:
+                      Fn::ImportValue:
+                        Fn::Sub: FileUploadBucket${Environment}
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup
@@ -66,25 +78,35 @@ Resources:
                   - sqs:ReceiveMessage
                   - sqs:DeleteMessage
                   - sqs:GetQueueAttributes
-                Resource: !ImportValue FileToAnalyzeQueueArn
+                Resource:
+                  Fn::ImportValue:
+                    Fn::Sub: FileToAnalyzeQueueArn${Environment}
               - Effect: Allow
                 Action:
                   - sqs:sendMessage
-                Resource: !ImportValue FileToAnalyzeDeadLetterQueueArn
+                Resource:
+                  Fn::ImportValue:
+                    Fn::Sub: FileToAnalyzeDeadLetterQueueArn${Environment}
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
-                Resource: !ImportValue OpenAIApiKeySecretRef
+                Resource:
+                  Fn::ImportValue:
+                    Fn::Sub: OpenAIApiKeySecretRef${Environment}
               - Effect: Allow
                 Action:
                   - ssm:GetParameter
                 Resource:
                   - Fn::Sub:
                       - "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAISystemPromptName}"
-                      - OpenAISystemPromptName: !ImportValue  OpenAISystemPromptName
+                      - OpenAISystemPromptName:
+                          Fn::ImportValue:
+                            Fn::Sub: OpenAISystemPromptName${Environment}
                   - Fn::Sub:
                       - "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAIUserPromptName}"
-                      - OpenAIUserPromptName: !ImportValue  OpenAIUserPromptName
+                      - OpenAIUserPromptName:
+                          Fn::ImportValue:
+                            Fn::Sub: OpenAIUserPromptName${Environment}
 
   FileAIProcessConsumerFunction:
     Type: AWS::Lambda::Function
@@ -95,7 +117,9 @@ Resources:
       Runtime: python3.11
       Timeout: 60
       Code:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: !Ref FunctionAIProcessConsumerName
       Layers:
         - arn:aws:lambda:eu-central-1:187925254637:layer:AWS-Parameters-and-Secrets-Lambda-Extension:17
@@ -103,21 +127,31 @@ Resources:
         - !Ref OpenAILayer
       Environment:
         Variables:
-          TABLE_NAME: !Ref DynamoMetadataTableName
+          TABLE_NAME: !Sub ${Project}-${DynamoMetadataTableName}-${Environment}
           PARAMETERS_SECRETS_EXTENSION_HTTP_PORT: !Ref ParametersAndSecretsExtensionPort
-          OPENAI_API_KEY_SECRET_ARN: !ImportValue  OpenAIApiKeySecretRef
+          OPENAI_API_KEY_SECRET_ARN:
+            Fn::ImportValue:
+              Fn::Sub: OpenAIApiKeySecretRef${Environment}
           SECRETS_MANAGER_TTL: !Ref SecretsManagerTTL
-          OPENAI_SYSTEM_PROMPT_PARAMETER_NAME: !ImportValue OpenAISystemPromptName
-          OPENAI_USER_PROMPT_PARAMETER_NAME: !ImportValue OpenAIUserPromptName
+          OPENAI_SYSTEM_PROMPT_PARAMETER_NAME:
+            Fn::ImportValue:
+              Fn::Sub: OpenAISystemPromptName${Environment}
+          OPENAI_USER_PROMPT_PARAMETER_NAME:
+            Fn::ImportValue:
+              Fn::Sub: OpenAIUserPromptName${Environment}
       # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
       DeadLetterConfig:
-        TargetArn: !ImportValue FileToAnalyzeDeadLetterQueueArn
+        TargetArn:
+          Fn::ImportValue:
+            Fn::Sub: FileToAnalyzeDeadLetterQueueArn${Environment}
 
   FileToAnalyzeQueueEventSourceMapping:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
       BatchSize: 1
-      EventSourceArn: !ImportValue FileToAnalyzeQueueArn
+      EventSourceArn:
+        Fn::ImportValue:
+          Fn::Sub: FileToAnalyzeQueueArn${Environment}
       FunctionName: !Ref FileAIProcessConsumerFunction
       Enabled: true
 
@@ -127,27 +161,31 @@ Resources:
       LayerName: pypdf
       Description: Layer with pypdf2 library that extract text from pdf file
       Content:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: layers/pypdf-layer.zip
       CompatibleRuntimes:
         - python3.11
-      LicenseInfo: "MIT" 
-  
+      LicenseInfo: "MIT"
+
   OpenAILayer:
     Type: AWS::Lambda::LayerVersion
     Properties:
       LayerName: openai
       Description: Layer with openai library
       Content:
-        S3Bucket: !ImportValue LambdaCodeBucket
+        S3Bucket:
+          Fn::ImportValue:
+            Fn::Sub: LambdaCodeBucket${Environment}
         S3Key: layers/openai-layer.zip
       CompatibleRuntimes:
         - python3.11
-      LicenseInfo: "MIT" 
+      LicenseInfo: "MIT"
 
 Outputs:
   FileAIProcessConsumerFunction:
     Description: AI process Lambda
     Value: !Ref FileAIProcessConsumerFunction
     Export:
-      Name: FileAIProcessConsumerFunction
+      Name: !Sub FileAIProcessConsumerFunction${Environment}

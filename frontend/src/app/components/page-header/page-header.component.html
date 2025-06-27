@@ -1,4 +1,16 @@
+<div class="page-header-wrapper">
+  <ng-container *ngIf="showBack">
+    <a [routerLink]="backLink" class="back-chevron" aria-label="Back to previous page">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </a>
+  </ng-container>
+
 <div class="page-header">
   <h2>{{ title }}</h2>
   <p>{{ subtitle }}</p>
+  <div class="report-meta" *ngIf="createdAt">
+    Processed on {{ createdAt | date : "medium" }}
+  </div>
 </div>

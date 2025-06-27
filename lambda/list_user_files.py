@@ -8,6 +8,7 @@ logger.setLevel(logging.INFO)
 
 dynamodb = boto3.client('dynamodb')
 TABLE_NAME = os.environ['TABLE_NAME']
+origin = os.environ.get('ORIGIN', '*')
 
 def extract_field(item, field_name):
     return item.get(field_name, {}).get('S')
@@ -49,7 +50,7 @@ def handler(event, context):
         return {
             "statusCode": 200,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": True,
                 "Access-Control-Allow-Headers": "Content-Type,Authorization",
                 "Access-Control-Allow-Methods": "OPTIONS,GET"
@@ -62,7 +63,7 @@ def handler(event, context):
         return {
             "statusCode": 500,
             "headers": {
-                "Access-Control-Allow-Origin": "http://localhost:4200",
+                "Access-Control-Allow-Origin": origin,
                 "Access-Control-Allow-Credentials": True
             },
             "body": json.dumps({"error": "Internal server error"})

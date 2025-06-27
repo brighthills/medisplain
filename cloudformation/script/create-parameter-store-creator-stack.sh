@@ -1,8 +1,8 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-secret-creator \
-  --template-body file://12-secret-creator-stack.yaml \
-  --profile bagalyze \
+  --stack-name medisplain-dev-parameter-store-creator \
+  --template-body file://14-parameter-store-creator-stack.yaml \
+  --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
-  --parameters file://params/openai-params.json
+    --parameters file://params/openai-params.json

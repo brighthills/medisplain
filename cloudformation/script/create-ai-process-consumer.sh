@@ -1,9 +1,9 @@
 #!/bin/bash
 
-aws cloudformation update-stack \
-  --stack-name bagalyze-file-ai-process-consumer \
-  --template-body file://10-ai-process-consumer-stack.yaml \
-  --profile bagalyze \
+aws cloudformation create-stack \
+  --stack-name medisplain-dev-file-ai-process-consumer \
+  --template-body file://15-ai-process-consumer-stack.yaml \
+  --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
       ParameterKey=Environment,ParameterValue=dev

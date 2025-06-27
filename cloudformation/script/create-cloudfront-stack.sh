@@ -1,9 +1,9 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name bagalyze-cloudfront \
-  --template-body file://13-cloudfront-stack.yaml \
-  --profile bagalyze \
+  --stack-name medisplain-dev-cloudfront \
+  --template-body file://12-cloudfront-stack.yaml \
+  --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
       ParameterKey=Environment,ParameterValue=dev \
