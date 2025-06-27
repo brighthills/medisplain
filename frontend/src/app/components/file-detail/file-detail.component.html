@@ -1,35 +1,35 @@
-<div class="file-list-container">
-  <app-page-header
-    title="MediSplain Report"
-    subtitle="Browse your uploaded medical documents"
-  >
-  </app-page-header>
-  <p class="report-meta" *ngIf="createdAt">
-    Processed on {{ createdAt | date : "medium" }}
-  </p>
-  <section class="card-section bg-blue-50 border-l-4 border-blue-400">
-    <h3 class="section-title">🧾 Quick Summary</h3>
-    <p>{{ summary.shortExplanation }}</p>
-  </section>
+<div>
+  <section>
+    <div class="file-detailed-container">
+      <app-page-header
+        title="MediSplain Report"
+        subtitle="Browse your uploaded medical documents"
+        [createdAt]="createdAt"
+        [showBack]="true"
+      >
+      </app-page-header>
 
-  <section class="card-section bg-yellow-50 border-l-4 border-yellow-400">
-    <h3 class="section-title">📌 Key Findings</h3>
-    <div class="grid md:grid-cols-2 gap-4 mt-2">
-      <p>{{ summary.keyFindings }}</p>
+      <section class="card-section bg-blue-50 border-l-4 border-blue-400">
+        <h3 class="section-title">🧾 Quick Summary</h3>
+        <p>{{ summary.shortExplanation }}</p>
+      </section>
+
+      <section class="card-section bg-yellow-50 border-l-4 border-yellow-400">
+        <h3 class="section-title">📌 Key Findings</h3>
+        <div class="grid md:grid-cols-2 gap-4 mt-2">
+          <p>{{ summary.keyFindings }}</p>
+        </div>
+      </section>
+
+      <section class="card-section bg-sky-50 border-l-4 border-sky-400">
+        <h3 class="section-title">📘 Detailed Explanation</h3>
+        <p>{{ summary.detailedExplanation }}</p>
+      </section>
+
+      <section class="card-section bg-green-50 border-l-4 border-green-400">
+        <h3 class="section-title">🩺 Doctor's Recommendations</h3>
+        <p>{{ summary.doctorRecommendation }}</p>
+      </section>
     </div>
   </section>
-
-  <section class="card-section bg-sky-50 border-l-4 border-sky-400">
-    <h3 class="section-title">📘 Detailed Explanation</h3>
-    <p>{{ summary.detailedExplanation }}</p>
-  </section>
-
-  <section class="card-section bg-green-50 border-l-4 border-green-400">
-    <h3 class="section-title">🩺 Doctor's Recommendations</h3>
-    <p>{{ summary.doctorRecommendation }}</p>
-  </section>
-
-  <div class="back-button-wrapper">
-    <button class="btn secondary" (click)="goBack()">⬅ Back to Reports</button>
-  </div>
 </div>
