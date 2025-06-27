@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth.guard'; // ez legyen legfelül!
+import { FileDetailComponent } from './components/file-detail/file-detail.component';
 
 const homeLoader = () =>
   import('./components/home/home.component').then((m) => m.HomeComponent);
@@ -38,9 +39,8 @@ export const routes: Routes = [
     loadComponent: homeLoader,
   },
   {
-    path: 'file/:filename',
+    path: 'file/:id',
     loadComponent: () => import('./components/file-detail/file-detail.component').then(m => m.FileDetailComponent),
     canActivate: [authGuard]
   }
-
 ];

@@ -22,14 +22,22 @@
         </p>
       </div>
       <div class="report-action">
-        <ng-container *ngIf="file.status === 'done'">
-          <button class="btn primary" (click)="fileDownload(file.filename)">
-            ⬇ Download
+        <button class="btn secondary" (click)="fileDownload(file.filename)">
+          ⬇ Download
+        </button>
+        <ng-container *ngIf="file.status === 'done'; else spinnerBlock">
+          <button
+            class="btn primary fixed-width-btn"
+            (click)="fileDetail(file.filename)"
+          >
+            ⬇ AI Report
           </button>
         </ng-container>
-        <ng-container *ngIf="file.status === 'processing'">
-          <span class="spinner"></span>
-        </ng-container>
+        <ng-template #spinnerBlock>
+          <div class="btn-placeholder">
+            <span class="spinner inside"></span>
+          </div>
+        </ng-template>
       </div>
     </div>
   </ng-container>
@@ -39,6 +47,4 @@
       <p>No uploaded documents found.</p>
     </div>
   </ng-template>
-
-  <span class="spinner"></span>
 </div>
