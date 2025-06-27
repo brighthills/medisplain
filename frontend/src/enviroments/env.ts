@@ -4,6 +4,7 @@ export const environment = {
     domain: 'https://medisplain-dev.auth.eu-central-1.amazoncognito.com',
     clientId: '7m1pnpl86ss6seqtjq945qpe3r',
     redirectUri: 'http://localhost:4200/callback',
+    logOutUri: 'http://localhost:4200/logout',
     responseType: 'code',
   },
   api: {
