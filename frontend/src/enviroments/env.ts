@@ -4,6 +4,7 @@ export const environment = {
     domain: 'https://medisplain-test.auth.eu-central-1.amazoncognito.com',
     clientId: '74sndk1nlo5qf411fdcp0mdh0e',
     redirectUri: 'https://medisplain.brighthills.cloud/callback',
+    logOutUri: 'https://medisplain.brighthills.cloud/logout',
     responseType: 'code',
   },
   api: {
