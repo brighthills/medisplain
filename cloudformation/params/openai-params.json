@@ -6,5 +6,9 @@
   {
     "ParameterKey" : "UserPromptParameterValue",
     "ParameterValue" : "This is a medical report. Explain in simple terms what this means:\n\n{text}\n\nThe answer should not contain any privacy information."
+  },
+  {
+    "ParameterKey" : "Environment",
+    "ParameterValue" : "dev"
   }
 ]

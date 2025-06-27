@@ -1,7 +1,7 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name medisplain-file-download \
+  --stack-name medisplain-dev-file-download \
   --template-body file://13-file-download-stack.yaml \
   --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
