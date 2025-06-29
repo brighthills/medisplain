@@ -99,10 +99,14 @@ Resources:
                 Resource:
                   - Fn::Sub:
                       - "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAISystemPromptName}"
-                      - OpenAISystemPromptName: !ImportValue OpenAISystemPromptName  #shall be modified if OpenAISystemPromptName${Environment} is exported
+                      - OpenAISystemPromptName:
+                          Fn::ImportValue:
+                            Fn::Sub: OpenAISystemPromptName${Environment}
                   - Fn::Sub:
                       - "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${OpenAIUserPromptName}"
-                      - OpenAIUserPromptName: !ImportValue OpenAIUserPromptName #shall be modified if OpenAIUserPromptName${Environment}
+                      - OpenAIUserPromptName:
+                          Fn::ImportValue:
+                            Fn::Sub: OpenAIUserPromptName${Environment}
 
   FileAIProcessConsumerFunction:
     Type: AWS::Lambda::Function
@@ -129,8 +133,12 @@ Resources:
             Fn::ImportValue:
               Fn::Sub: OpenAIApiKeySecretRef${Environment}
           SECRETS_MANAGER_TTL: !Ref SecretsManagerTTL
-          OPENAI_SYSTEM_PROMPT_PARAMETER_NAME: !ImportValue OpenAISystemPromptName #shall be modified if OpenAISystemPromptName${Environment}
-          OPENAI_USER_PROMPT_PARAMETER_NAME: !ImportValue OpenAIUserPromptName #shall be modified if OpenAIUserPromptName${Environment}
+          OPENAI_SYSTEM_PROMPT_PARAMETER_NAME:
+            Fn::ImportValue:
+              Fn::Sub: OpenAISystemPromptName${Environment}
+          OPENAI_USER_PROMPT_PARAMETER_NAME:
+            Fn::ImportValue:
+              Fn::Sub: OpenAIUserPromptName${Environment}
       # AWS bypasses the SQS RedrivePolicy when Lambda is the consumer and uses the DeadLetterConfig property instead.
       DeadLetterConfig:
         TargetArn:
