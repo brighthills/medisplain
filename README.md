@@ -236,8 +236,15 @@ MediSplain is a fully serverless platform for authenticated file uploads, metada
   - S3 bucket policies allow only required services (Lambda, S3 to SQS)
   - SQS access tightly restricted by source ARN (S3)
   - API Gateway routes protected via Cognito JWT token
+  - Secret Manager stores secret API key for third party services
 
+- ##### Application configuration
+  - Configuration values (e.g., OpenAI user/system prompts) stored in AWS Systems Manager Parameter Store
+  - Secure and centralized parameter management for dynamic app behavior
+  
 - ### Automation with CloudFormation
+  - Configuration values (e.g., OpenAI user/system prompts) stored in AWS Systems Manager Parameter Store
+  - Secure and centralized parameter management for dynamic app behavior
   - Modular CloudFormation templates:
     - Cognito & API Gateway
     - S3 Buckets & IAM
