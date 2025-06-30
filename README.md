@@ -237,6 +237,10 @@ MediSplain is a fully serverless platform for authenticated file uploads, metada
   - SQS access tightly restricted by source ARN (S3)
   - API Gateway routes protected via Cognito JWT token
 
+- ### Application configuration
+  - Configuration values (e.g., OpenAI user/system prompts) stored in AWS Systems Manager Parameter Store
+  - Secure and centralized parameter management for dynamic app behavior
+
 - ### Automation with CloudFormation
   - Modular CloudFormation templates:
     - Cognito & API Gateway
