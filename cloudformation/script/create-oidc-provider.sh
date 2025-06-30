@@ -7,5 +7,5 @@ aws cloudformation create-stack \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
       ParameterKey=GitHubOrg,ParameterValue=brighthills \
-      ParameterKey=RepositoryName,ParameterValue=bagalyze \
+      ParameterKey=RepositoryName,ParameterValue=medisplain \
       ParameterKey=OIDCProviderArn,ParameterValue=arn:aws:iam::447923164625:oidc-provider/token.actions.githubusercontent.com
