@@ -1,4 +1,4 @@
-name: Process file via AI
+name: Upload Lambda to S3 via OIDC
 
 on:
   workflow_dispatch:
@@ -13,9 +13,9 @@ jobs:
 
     env:
       AWS_REGION: eu-central-1
-      S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
-      ZIP_FILE_NAME: consume-file-ai-process.zip
-      LAMBDA_FUNCTION_NAME: bagalyze-file-ai-process-consumer-function-dev
+      S3_BUCKET_NAME: medisplain-buckets-lambda-code-test
+      ZIP_FILE_NAME: ws-connect-handler.zip
+      LAMBDA_FUNCTION_NAME: medisplain-ws-connect-handler-connect-function-test
 
     steps:
       - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
       - name: Zip Lambda code
         run: |
           mkdir -p dist
-          zip -j dist/${{ env.ZIP_FILE_NAME }} lambda/consume_file_ai_process.py
+          zip -j dist/${{ env.ZIP_FILE_NAME }} lambda/upload_handler.py
 
       - name: Upload to S3
         run: |
