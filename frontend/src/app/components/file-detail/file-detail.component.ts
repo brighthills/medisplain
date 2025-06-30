@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { environment } from '../../../enviroments/env';
 import { PageHeaderComponent } from '../page-header/page-header.component';
 import { AISummary, AISummaryResponse, FileMetadata } from '../../interfaces';
+import { ToastService } from '../../services/toast.service';
 
 @Component({
   standalone: true,
@@ -27,6 +28,10 @@ export class FileDetailComponent implements OnInit {
   private router = inject(Router);
   private http = inject(HttpClient);
 
+  constructor(
+    private toastService: ToastService
+  ) { }
+
   ngOnInit(): void {
     const filename = this.route.snapshot.paramMap.get('id');
     if (!filename) return;
@@ -44,6 +49,11 @@ export class FileDetailComponent implements OnInit {
           const parsed: AISummaryResponse = typeof data.aiSummary === 'string'
             ? JSON.parse(data.aiSummary)
             : data.aiSummary;
+
+          if (!parsed.success) {
+            this.toastService.show('❌ The provided report is not a medical report', 'error');
+            return;
+          }
 
           const {
             shortExplanation = '',
