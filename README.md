@@ -2,8 +2,40 @@
 
 MediSplain is a fully serverless platform for authenticated file uploads, metadata processing, AI-powered PDF analysis, and secure file access — built with AWS services and Angular frontend. It leverages robust IAM controls, OIDC-based GitHub CI/CD, and modular CloudFormation deployments.
 
----
+# Try MediSplain — Devpost MVP
 
+Navigate to **https://medisplain.brighthills.com/**
+
+MediSplain is a medical report analysis tool powered by GPT-4o. You can log in and test it directly via our hosted environment.
+
+# Test Credentials
+
+Use any of the following pre-created users to log in (same password for all):
+
+**Users:**
+- johndoe@medsplain.com  
+- ben.harris@medsplain.com  
+- aiden.walker@medsplain.com  
+
+**Password:** `Kiskutya45!`
+
+Each user has **3 pre-uploaded reports**.
+
+# Want to Try with Your Own Input?
+
+If you’d like to try it with a custom medical report, ask ChatGPT to generate one using this prompt:
+
+> **"Generate me a valid medical report from <location> with dummy data."**  
+> *(Replace `<location>` with Virginia, UK, France, or California)*
+
+After that, follow these steps:
+1. Log in at [https://medisplain.brighthills.com](https://medisplain.brighthills.com)
+2. Upload your OCR-based PDF medical report
+3. Wait for processing to complete (WebSocket will notify)
+4. Review the AI-generated summary and insights
+
+🛠️ *This application is an MVP developed for the Devpost Hackathon.*
+---
 ## Infrastructure and Architecture Built:
 
 - ### Core Components
