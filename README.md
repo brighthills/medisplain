@@ -31,10 +31,10 @@ MediSplain is a fully serverless platform for authenticated file uploads, metada
 
 - Sort Key Variants
 
-  | SK | Format | Description |
-  | -- | ------ | ----------- |
-  | info | Basic user info row |
-  | ```file#image#file.jpg``` | Metadata for image uploads |
+  | SK Format                   | Description |
+  |-----------------------------| ----------- |
+  | info                        | Basic user info row |
+  | ```file#image#file.jpg```   | Metadata for image uploads |
   | ```file#document#doc.pdf``` | Metadata for PDF uploads |
 
 - Created during sign-up by the persist_user_info.py Lambda:
