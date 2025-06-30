@@ -1,10 +1,10 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name medisplain-secret-creator \
+  --stack-name medisplain-dev-secret-creator \
   --template-body file://11-secret-creator-stack.yaml \
   --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
       ParameterKey=Environment,ParameterValue=dev \
-      ParameterKey=OpenAISecretString,ParameterValue=<the-secret>
+      ParameterKey=OpenAISecretString,ParameterValue=<top-secret>

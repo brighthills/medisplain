@@ -1,17 +1,18 @@
 export const environment = {
   production: false,
   cognito: {
-    domain: 'https://medisplain-test.auth.eu-central-1.amazoncognito.com',
-    clientId: '74sndk1nlo5qf411fdcp0mdh0e',
-    redirectUri: 'https://medisplain.brighthills.cloud/callback',
+    domain: 'https://medisplain-dev.auth.eu-central-1.amazoncognito.com',
+    clientId: '7m1pnpl86ss6seqtjq945qpe3r',
+    redirectUri: 'http://localhost:4200/callback',
+    logOutUri: 'http://localhost:4200/logout',
     responseType: 'code',
   },
   api: {
-    uploadUrl: 'https://9j3fnzfz98.execute-api.eu-central-1.amazonaws.com/test/upload',
-    filesUrl: 'https://9j3fnzfz98.execute-api.eu-central-1.amazonaws.com/test/files',
-    fileUrl: 'https://9j3fnzfz98.execute-api.eu-central-1.amazonaws.com/test/download',
-    userMetaUrl: 'https://9j3fnzfz98.execute-api.eu-central-1.amazonaws.com/test/user',
-    fileDetail: 'https://9j3fnzfz98.execute-api.eu-central-1.amazonaws.com/test/file-meta',
-    webSocketBaseUrl: 'wss://x4rtfzardl.execute-api.eu-central-1.amazonaws.com/test/',
+    uploadUrl: 'https://7ew6twes9f.execute-api.eu-central-1.amazonaws.com/dev/upload',
+    filesUrl: 'https://7ew6twes9f.execute-api.eu-central-1.amazonaws.com/dev/files',
+    fileUrl: 'https://7ew6twes9f.execute-api.eu-central-1.amazonaws.com/dev/download',
+    userMetaUrl: 'https://7ew6twes9f.execute-api.eu-central-1.amazonaws.com/dev/user',
+    fileDetail: 'https://7ew6twes9f.execute-api.eu-central-1.amazonaws.com/dev/file-meta',
+    webSocketBaseUrl: 'wss://igr9mytqu6.execute-api.eu-central-1.amazonaws.com/dev/',
   }
 };

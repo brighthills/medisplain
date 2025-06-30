@@ -75,8 +75,8 @@ export class FileListComponent implements OnInit, OnDestroy {
       next: (signedUrl: string) => {
         const a = document.createElement('a');
         a.href = signedUrl;
-        a.download = filename; 
-        a.target = '_blank';   
+        a.download = filename;
+        a.target = '_blank';
         a.click();
       },
       error: (err) => {
@@ -86,7 +86,8 @@ export class FileListComponent implements OnInit, OnDestroy {
   }
 
   fileDetail(filename: string): void {
-    this.router.navigate(['/file', filename]);
+    const id = filename.replace(/\.pdf$/, '');
+    this.router.navigate(['/file', id]);
   }
 
   ngOnDestroy(): void {

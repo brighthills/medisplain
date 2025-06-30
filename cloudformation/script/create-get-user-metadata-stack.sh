@@ -1,7 +1,7 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name medisplain-get-user-metadata \
+  --stack-name medisplain-dev-get-user-metadata \
   --template-body file://06-get-user-metadata-stack.yaml \
   --profile medisplain \
   --capabilities CAPABILITY_NAMED_IAM \

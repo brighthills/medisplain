@@ -1,11 +1,17 @@
-.file-list-container {
-  padding-right: 40px;
-  padding-left: 40px;
+@use "../../../styles/_common" as *;
+
+.file-detailed-container {
+  padding-top: 2rem;
 }
+
 .card-section {
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0 20px;
+  margin-bottom: 0.5rem;
+  margin-right: 20px;
 }
 
 .section-title {
@@ -17,10 +23,24 @@
 .back-button-wrapper {
   margin-top: 2rem;
   text-align: left;
+
+  .btn.secondary {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid #a78bfa; // világoslila border
+    background-color: transparent;
+    color: #7c3aed; // lila szöveg
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #ede9fe;
+    }
+
+    &:active {
+      background-color: #ddd6fe;
+    }
+  }
 }
 
-.report-meta {
-  font-size: 0.875rem;
-  color: #666;
-  margin: 0 0 1.5rem 0;
-}

@@ -31,8 +31,7 @@ export class AuthService {
     localStorage.clear();
     const logoutUrl = `${environment.cognito.domain}/logout` +
       `?client_id=${environment.cognito.clientId}` +
-      `&logout_uri=http://localhost:4200/logout`; // vagy ami tényleg be van állítva
+      `&logout_uri=${environment.cognito.logOutUri}`;
     window.location.href = logoutUrl;
   }
-
 }
