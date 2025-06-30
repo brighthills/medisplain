@@ -115,5 +115,3 @@ Outputs:
     Value: !Ref LambdaSecurityBucket
     Export:
       Name: !Sub LambdaSecurityBucket${Environment}
-
-
