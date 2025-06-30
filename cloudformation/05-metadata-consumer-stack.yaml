@@ -43,7 +43,7 @@ Resources:
                   - "arn:aws:s3:::${BucketName}/*"
                   - BucketName:
                       Fn::ImportValue:
-                          Fn::Sub: FileUploadBucket${Environment}
+                        Fn::Sub: FileUploadBucket${Environment}
               - Effect: Allow
                 Action:
                   - logs:CreateLogGroup

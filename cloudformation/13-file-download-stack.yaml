@@ -35,17 +35,17 @@ Resources:
               Service: cloudfront.amazonaws.com
             Action: s3:GetObject
             Resource: !Sub
-            - "arn:aws:s3:::${UploadBucket}/*"
-            - UploadBucket:
-                Fn::ImportValue:
-                  Fn::Sub: FileUploadBucket${Environment}
+              - "arn:aws:s3:::${UploadBucket}/*"
+              - UploadBucket:
+                  Fn::ImportValue:
+                    Fn::Sub: FileUploadBucket${Environment}
             Condition:
               StringEquals:
                 AWS:SourceArn: !Sub
-                - "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistributionId}"
-                - CloudFrontDistributionId:
-                    Fn::ImportValue:
-                      Fn::Sub: CloudFrontDownloadDistributionId${Environment}
+                  - "arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistributionId}"
+                  - CloudFrontDistributionId:
+                      Fn::ImportValue:
+                        Fn::Sub: CloudFrontDownloadDistributionId${Environment}
 
   CryptographyLayer:
     Type: AWS::Lambda::LayerVersion

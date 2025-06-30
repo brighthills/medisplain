@@ -1,9 +1,9 @@
 #!/bin/bash
 
 aws cloudformation create-stack \
-  --stack-name medisplain-prod-file-ai-process-consumer \
-  --template-body file://15-ai-process-consumer-stack.yaml \
-  --profile medisplain \
+  --stack-name medisplain-prod-static-site \
+  --template-body file://18-static-site-stack.yaml \
+  --profile bh-us \
   --capabilities CAPABILITY_NAMED_IAM \
   --parameters \
       ParameterKey=Environment,ParameterValue=prod

@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Frontend hosting S3 bucket for medisplain.brighthills.cloud
+
+Parameters:
+  Environment:
+    Type: String
+  DomainName:
+    Type: String
+    Default: medisplain.brighthills.cloud
+
+Resources:
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref DomainName
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+
+Outputs:
+  SiteBucket:
+    Value: !Ref SiteBucket
+    Export:
+      Name: SiteBucket
+  SiteBucketRegionalDomainName:
+    Value: !GetAtt SiteBucket.RegionalDomainName
+    Export:
+      Name: SiteBucketRegionalDomainName

@@ -9,10 +9,9 @@ import { environment } from './enviroments/env';
 
 
 const currentUrl = window.location.pathname;
-const isCallback = currentUrl.includes('/callback'); // vagy: .startsWith('/callback')
+const isCallback = currentUrl.includes('/callback');
 const token = localStorage.getItem('accessToken');
 
-// engedjük továbbmenni, ha a callback route-on vagyunk!
 if (token || isCallback) {
   bootstrapApplication(AppComponent, {
     providers: [

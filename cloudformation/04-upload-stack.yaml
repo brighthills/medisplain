@@ -20,7 +20,7 @@ Parameters:
     Type: String
 
 Resources:
-#---Cognito
+  #---Cognito
   RestrictedUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -93,7 +93,7 @@ Resources:
       UserPoolId: !Ref RestrictedUserPool
       Description: Admin group for pre-approved users
 
-#---Lambda
+  #---Lambda
   UploadFileFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -178,7 +178,7 @@ Resources:
         Variables:
           TABLE_NAME: !Ref UserFileMetadataTable
 
-#--- API Gateway
+  #--- API Gateway
   #enables API Gateway logs to be tracked in CloudWatch
   ApiGatewayCloudWatchLogsRole:
     Type: AWS::IAM::Role
