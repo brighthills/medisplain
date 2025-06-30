@@ -1,7 +1,7 @@
 ## Manual interventions
 
 ### CloudFrontKeyPairId and KeyGroupId creation
-To ```s3://bagalyze-buckets-security-dev/rsa/cloudfront-private-key.pem``` upload a private-key.
+To ```s3://medisplain-buckets-security-dev/rsa/cloudfront-private-key.pem``` upload a private-key.
 ```
 openssl genrsa -out private.pem 2048
 ```
