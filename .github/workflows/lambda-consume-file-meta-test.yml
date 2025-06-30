@@ -1,4 +1,4 @@
-name: Persist user info to DynamoDb
+name: Consumes SQS messages and persist to DynamoDb
 
 on:
   workflow_dispatch:
@@ -13,9 +13,9 @@ jobs:
 
     env:
       AWS_REGION: eu-central-1
-      S3_BUCKET_NAME: bagalyze-buckets-lambda-code-dev
-      ZIP_FILE_NAME: persist-user-info.zip
-      LAMBDA_FUNCTION_NAME: bagalyze-upload-gateway-function-persist-user-dev
+      S3_BUCKET_NAME: medisplain-buckets-lambda-code-test
+      ZIP_FILE_NAME: consume-file-metadata.zip
+      LAMBDA_FUNCTION_NAME: medisplain-file-metadata-consumer-function-test
 
     steps:
       - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
       - name: Zip Lambda code
         run: |
           mkdir -p dist
-          zip -j dist/${{ env.ZIP_FILE_NAME }} lambda/persist_user_info.py
+          zip -j dist/${{ env.ZIP_FILE_NAME }} lambda/consume_file_metadata.py
 
       - name: Upload to S3
         run: |
